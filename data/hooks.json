@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "hook": "Stop scrolling if you want your Reels to blow up",
+    "niche": "business",
+    "category": "Luxury Aesthetic",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "2.4M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4"
+  },
+  {
+    "id": 2,
+    "hook": "I made $10,000 in 30 days using this 1 secret",
+    "niche": "finance",
+    "category": "Dark Wealth",
+    "duration": "3s",
+    "resolution": "1080x1920",
+    "views": "5.1M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #064e3b",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-counting-money-bills-42653-large.mp4"
+  },
+  {
+    "id": 3,
+    "hook": "Stop doing regular crunches. Do this instead",
+    "niche": "fitness",
+    "category": "Gym Motivation",
+    "duration": "5s",
+    "resolution": "1080x1920",
+    "views": "4.2M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #7f1d1d",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-weights-in-a-gym-41584-large.mp4"
+  },
+  {
+    "id": 4,
+    "hook": "POV: You finally cracked the Instagram algorithm",
+    "niche": "general",
+    "category": "Cinematic B-Roll",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "8.7M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #312e81",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-night-sky-with-stars-at-a-calm-lake-time-lapse-42531-large.mp4"
+  },
+  {
+    "id": 5,
+    "hook": "This $10 skincare product replaced my entire $200 routine",
+    "niche": "beauty",
+    "category": "Aesthetic Glow",
+    "duration": "3s",
+    "resolution": "1080x1920",
+    "views": "3.8M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #831843",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-skincare-routine-with-cream-43542-large.mp4"
+  },
+  {
+    "id": 6,
+    "hook": "Gordon Ramsay would cry if he saw this 5-minute hack",
+    "niche": "food",
+    "category": "Satisfying Cooking",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "6.3M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #78350f",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-chef-garnishing-a-plate-42284-large.mp4"
+  },
+  {
+    "id": 7,
+    "hook": "Put your phone down and go outside after watching this",
+    "niche": "lifestyle",
+    "category": "Nature Chill",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "4.9M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #14532d",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-green-forest-from-above-42994-large.mp4"
+  },
+  {
+    "id": 8,
+    "hook": "Nobody is talking about this AI tool in 2026",
+    "niche": "business",
+    "category": "Cyber Tech",
+    "duration": "3s",
+    "resolution": "1080x1920",
+    "views": "7.5M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #0f172a",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-hands-typing-on-a-glowing-keyboard-41386-large.mp4"
+  },
+  {
+    "id": 9,
+    "hook": "The workout nobody talks about but everyone needs",
+    "niche": "fitness",
+    "category": "Gym Motivation",
+    "duration": "5s",
+    "resolution": "1080x1920",
+    "views": "3.1M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #581c87",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-crossfit-woman-doing-pull-ups-41586-large.mp4"
+  },
+  {
+    "id": 10,
+    "hook": "Your landlord legally cannot charge you for this",
+    "niche": "finance",
+    "category": "Talking Head / POV",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "11.2M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1c1917",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-keys-opening-an-apartment-door-42657-large.mp4"
+  },
+  {
+    "id": 11,
+    "hook": "3 innocent daily habits that are silently ruining your skin",
+    "niche": "beauty",
+    "category": "Aesthetic Glow",
+    "duration": "4s",
+    "resolution": "1080x1920",
+    "views": "5.6M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #701a75",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-face-cream-texture-close-up-43540-large.mp4"
+  },
+  {
+    "id": 12,
+    "hook": "Watch this till the end. Trust me on this one.",
+    "niche": "general",
+    "category": "Suspense / Mystery",
+    "duration": "3s",
+    "resolution": "1080x1920",
+    "views": "9.4M",
+    "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #18181b",
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-traffic-lights-in-the-city-at-night-42533-large.mp4"
+  }
+]
