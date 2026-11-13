@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.googleapis.com https://*.workers.dev https://*.hookmaster.guru https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title id="page-title">Viral Hook Template — HookMaster</title>
+  <meta name="description" id="page-desc" content="Free 9:16 viral video hook template for Reels, TikTok and Shorts. Preview footage, copy viral caption, and edit in Studio.">
+  <link rel="canonical" id="page-canonical" href="https://hookmaster.guru/hook.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+
+  <style>
+    .hook-detail-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 36px;
+      align-items: start;
+      margin-top: 24px;
+      margin-bottom: 60px;
+    }
+    @media (max-width: 960px) {
+      .hook-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+    }
+    .hook-preview-col {
+      position: sticky;
+      top: 90px;
+    }
+    .hook-phone-wrap {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+      border-radius: 28px;
+      background: #000;
+      border: 4px solid var(--border-color);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 35px rgba(116,64,228,0.25);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 9/16;
+    }
+    .hook-phone-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hook-content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .step-box {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-gradient);
+      color: #fff;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+    .template-asset-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(116,64,228,0.1);
+      border: 1px solid rgba(116,64,228,0.3);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">
+        <img src="images/logo.jpg" alt="HookMaster logo" class="logo-img" width="36" height="36">
+        <span>Hook<span class="gradient-text">Master</span></span>
+      </a>
+      <ul class="navbar-links" id="navbar-links">
+        <li><a href="hooks.html">Free Hooks</a></li>
+        <li><a href="prompts.html">AI Prompts</a></li>
+        <li><a href="studio.html">Studio Editor</a></li>
+        <li><a href="shop.html">Pricing</a></li>
+      </ul>
+      <div class="navbar-cta">
+        <a href="shop.html#bundle" class="btn btn-primary btn-sm">Get All Access</a>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN DETAIL SECTION ===== -->
+  <main class="container" style="padding-top: 96px;">
+    
+    <!-- Breadcrumb -->
+    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+      <a href="index.html" style="color: var(--text-muted); text-decoration: none;">Home</a>
+      <span>›</span>
+      <a href="hooks.html" style="color: var(--text-muted); text-decoration: none;">Hooks Vault</a>
+      <span>›</span>
+      <span id="breadcrumb-niche" style="text-transform: capitalize; color: var(--text-secondary);">General</span>
+      <span>›</span>
+      <span id="breadcrumb-title" style="color: #fff; font-weight: 600; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Hook</span>
+    </div>
+
+    <div class="hook-detail-grid" id="hook-detail-app">
+      <!-- Loading state -->
+      <div style="grid-column: 1 / -1; text-align: center; padding: 80px 0; color: var(--text-muted);">
+        <p style="font-size: 1.1rem;">Loading viral hook template...</p>
+      </div>
+    </div>
+
+    <!-- Related Hooks -->
+    <section style="margin-top: 40px; margin-bottom: 80px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h3 style="font-size: 1.5rem; font-weight: 800;">More Viral Hooks in <span class="gradient-text" id="related-niche-name">This Niche</span></h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Browse proven high-retention openers ready for 9:16 export.</p>
+        </div>
+        <a href="hooks.html" class="btn btn-secondary btn-sm">Explore All Hooks →</a>
+      </div>
+      <div class="video-hooks-grid" id="related-hooks-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid footer-simple">
+        <div class="footer-brand">
+          <a href="index.html" class="navbar-brand">
+            <img src="images/logo.jpg" alt="HookMaster logo" class="logo-img" width="36" height="36">
+            <span>Hook<span class="gradient-text">Master</span></span>
+          </a>
+          <p>Free scroll-stopping hooks & ready-to-use templates for Reels, TikTok & Shorts.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="hooks.html">Free Hooks</a></li>
+            <li><a href="prompts.html">AI Prompts</a></li>
+            <li><a href="studio.html">Caption Studio</a></li>
+            <li><a href="shop.html">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Follow</h4>
+          <ul>
+            <li><a href="#" data-social="tiktok">TikTok</a></li>
+            <li><a href="#" data-social="instagram">Instagram</a></li>
+            <li><a href="#" data-social="youtube">YouTube</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 HookMaster</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/cloud.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hookId = urlParams.get('id');
+
+      if (!allHooks || !allHooks.length) {
+        const [staticHooks, cloudHooks] = await Promise.all([
+          loadJSON('data/hooks.json'),
+          (typeof Cloud !== 'undefined' ? Cloud.fetchHooks() : Promise.resolve([]))
+        ]);
+        allHooks = [...cloudHooks, ...staticHooks];
+      }
+
+      const hook = allHooks.find(h => String(h.id) === String(hookId)) || allHooks[0];
+
+      if (!hook) {
+        document.getElementById('hook-detail-app').innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+            <h2>Hook not found</h2>
+            <p style="color: var(--text-muted); margin: 12px 0 20px;">This hook may have been removed or updated.</p>
+            <a href="hooks.html" class="btn btn-primary">Browse All Hooks</a>
+          </div>`;
+        return;
+      }
+
+      renderHookPage(hook);
+      renderRelatedHooks(hook);
+    });
+
+    function renderHookPage(hook) {
+      document.title = `"${hook.hook}" — 9:16 Viral Hook Template | HookMaster`;
+      document.getElementById('breadcrumb-niche').textContent = hook.niche || 'General';
+      document.getElementById('breadcrumb-title').textContent = `"${hook.hook}"`;
+
+      const howToText = hook.howTo || `1. Hook the viewer in the first 2-3 seconds with this exact video and text opener.\n2. Cut immediately to your talking head or behind-the-scenes product demo.\n3. Deliver high value in 3 bullet points, then finish with a direct call to comment or follow.`;
+      const howToSteps = howToText.split('\n').filter(s => s.trim());
+
+      const description = hook.description || `Proven high-retention 9:16 video opener engineered to stop the scroll on Instagram Reels, TikTok, and YouTube Shorts. Pair with fast-paced talking points or tutorial clips.`;
+      const caption = hook.suggestedCaption || `The 1 thing that completely shifted my results 🔥\n\nSave this for your next video.\n\n#reels #contentcreator #growth #viraltips #shortform`;
+
+      document.getElementById('hook-detail-app').innerHTML = `
+        <!-- Left Column: Video Preview & Primary CTAs -->
+        <div class="hook-preview-col">
+          <div class="hook-phone-wrap">
+            <video id="detail-video" src="${esc(hook.videoSample)}" autoplay loop muted playsinline></video>
+            <div class="video-overlay-gradient"></div>
+            <div class="video-top-badges">
+              <span class="badge badge-resolution">${esc(hook.resolution || '1080p')}</span>
+              <span class="badge badge-niche">${esc(hook.duration || '4s')}</span>
+            </div>
+            <div class="video-hook-caption">
+              <div class="caption-text">"${esc(hook.hook)}"</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <a href="studio.html?hookId=${encodeURIComponent(hook.id)}" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem;">
+              ⚡ Edit in Studio (CapCut Style)
+            </a>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;" onclick="downloadHook(${Number(hook.id)})">
+                ⬇ Download MP4
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;" onclick="copyText('${esc(hook.hook)}', 'Hook text copied!')">
+                📋 Copy Text
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Information & Template Blueprint -->
+        <div class="hook-content-card">
+          <div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+              <span class="badge badge-niche" style="font-size: 0.8rem; padding: 4px 10px; text-transform: uppercase;">${esc(hook.niche)}</span>
+              <span class="badge badge-resolution" style="font-size: 0.8rem; padding: 4px 10px;">${esc(hook.category || 'Viral B-Roll')}</span>
+              ${hook.views ? `<span class="badge" style="background: rgba(34,211,238,0.15); color: var(--accent-cyan); border: 1px solid rgba(34,211,238,0.3); font-size: 0.8rem;">🔥 ${esc(hook.views)} Views Benchmark</span>` : ''}
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 900; line-height: 1.25; margin-bottom: 12px;">
+              "${esc(hook.hook)}"
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.98rem; line-height: 1.5;">
+              ${esc(description)}
+            </p>
+          </div>
+
+          <!-- Included in this Template -->
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+              📦 Ready-to-Use Template Includes
+            </h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <span class="template-asset-pill">🎥 9:16 1080p B-Roll Opener (${esc(hook.duration || '4s')})</span>
+              <span class="template-asset-pill">✨ Bold Dark-Pill Text Overlay</span>
+              <span class="template-asset-pill">🎬 Drag-n-Drop User Footage Slot</span>
+              <span class="template-asset-pill">⚡ Seamless Cut/Fade Transition</span>
+              <span class="template-asset-pill">🎵 Sync Ready for Viral Sounds</span>
+            </div>
+          </div>
+
+          <!-- How to Use Guide -->
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 14px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+              💡 How to Use This Hook (Step-by-Step)
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              ${howToSteps.map((step, idx) => `
+                <div class="step-box">
+                  <div class="step-num">${idx + 1}</div>
+                  <div style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.45;">
+                    ${esc(step.replace(/^\d+[\.\)]\s*/, ''))}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Caption & Hashtags -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+                📝 Suggested Caption & Hashtags
+              </h3>
+              <button class="btn btn-secondary btn-sm" onclick="copyText(document.getElementById('caption-box').innerText, 'Caption copied!')">
+                📋 Copy Caption
+              </button>
+            </div>
+            <div id="caption-box" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.88rem; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.5; font-family: inherit;">${esc(caption)}</div>
+          </div>
+
+          <!-- Direct CTA Banner -->
+          <div style="background: linear-gradient(135deg, rgba(116,64,228,0.15), rgba(236,72,153,0.15)); border: 1px solid var(--border-glow); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: #fff;">Want to combine with your own clips?</h4>
+              <p style="color: var(--text-secondary); font-size: 0.88rem;">Open our CapCut-style studio, drop your video, and export the finished 9:16 reel in seconds.</p>
+            </div>
+            <a href="studio.html?hookId=${encodeURIComponent(hook.id)}" class="btn btn-primary">
+              Open in Studio →
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function renderRelatedHooks(currentHook) {
+      const niche = currentHook.niche || 'general';
+      document.getElementById('related-niche-name').textContent = niche.charAt(0).toUpperCase() + niche.slice(1);
+      const related = allHooks.filter(h => String(h.id) !== String(currentHook.id) && (h.niche === niche || niche === 'all')).slice(0, 3);
+      const fallback = related.length ? related : allHooks.filter(h => String(h.id) !== String(currentHook.id)).slice(0, 3);
+      renderHookGrid('related-hooks-grid', fallback);
+    }
+  </script>
+</body>
+</html>

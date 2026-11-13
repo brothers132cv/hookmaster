@@ -166,8 +166,9 @@ function renderHookGrid(id, hooks) {
 }
 
 function createHookCard(hook) {
+  const hookId = Number(hook.id) || hook.id;
   return `
-    <div class="video-hook-card" data-id="${Number(hook.id)}">
+    <div class="video-hook-card" data-id="${esc(hookId)}">
       <div class="video-preview-wrapper" onclick="toggleVideoPlayback(this)">
         <video src="${esc(hook.videoSample)}" preload="metadata" muted loop playsinline style="background:#0f172a;"></video>
         <div class="video-overlay-gradient"></div>
@@ -176,13 +177,22 @@ function createHookCard(hook) {
           <span class="badge badge-niche">${esc(hook.duration || '4s')}</span>
         </div>
         <div class="video-play-btn">▶</div>
-        <div class="video-hook-caption"><div class="caption-text">"${esc(hook.hook)}"</div></div>
+        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none;" onclick="event.stopPropagation();">
+          <div class="caption-text">"${esc(hook.hook)}"</div>
+        </a>
       </div>
       <div class="video-card-body">
-        <div class="video-meta-tags"><span class="badge badge-niche">${esc(hook.niche)}</span></div>
+        <div class="video-meta-tags" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <span class="badge badge-niche">${esc(hook.niche)}</span>
+          <a href="hook.html?id=${encodeURIComponent(hookId)}" style="font-size:0.75rem; color:var(--accent-cyan); text-decoration:none; font-weight:700;">View Guide →</a>
+        </div>
+        <div class="video-card-actions" style="margin-bottom: 6px;">
+          <a href="studio.html?hookId=${encodeURIComponent(hookId)}" class="btn btn-primary btn-sm" style="flex:1; justify-content:center; text-decoration:none;">⚡ Edit in Studio</a>
+          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="flex:0.8; justify-content:center; text-decoration:none;">ℹ️ Template</a>
+        </div>
         <div class="video-card-actions">
-          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyText(this.dataset.copy, 'Hook text copied!')">📋 Copy Text</button>
-          <button class="btn btn-download btn-sm" onclick="downloadHook(${Number(hook.id)})">⬇ Download</button>
+          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyText(this.dataset.copy, 'Hook text copied!')">📋 Copy</button>
+          <button class="btn btn-download btn-sm" onclick="downloadHook(${JSON.stringify(hookId)})">⬇ Download</button>
         </div>
       </div>
     </div>`;

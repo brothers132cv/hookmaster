@@ -2,382 +2,942 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.googleapis.com https://*.workers.dev https://*.hookmaster.guru https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https: data:; connect-src 'self' https://*.googleapis.com https://*.workers.dev https://*.hookmaster.guru https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creator Studio — HookMaster Video & Caption Editor</title>
-  <meta name="description" content="In-browser 9:16 vertical video & viral caption editor for Instagram Reels and TikTok. Trim clips, add high-converting viral captions, and export ready-to-post hooks.">
+
+  <title>HookMaster Studio — CapCut-Style 9:16 Video Editor</title>
+  <meta name="description" content="In-browser CapCut-style video editor for short-form creators. Combine viral hook openers with your own footage, text captions, viral transitions and music.">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+
   <style>
-    .studio-grid {
-      display: grid;
-      grid-template-columns: 380px 1fr 340px;
-      gap: 24px;
-      margin-top: 20px;
-      min-height: calc(100vh - 180px);
-    }
-    @media (max-width: 1100px) {
-      .studio-grid { grid-template-columns: 1fr; }
-    }
-    .studio-panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 24px;
+    body {
+      background: #080811;
+      color: var(--text-primary);
+      overflow-x: hidden;
       display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Studio Header */
+    .studio-header {
+      background: #0f0f1c;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 16px;
+    }
+    .studio-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    /* Main Workspace */
+    .studio-workspace {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      flex: 1;
+      min-height: calc(100vh - 280px);
+      background: #080811;
+    }
+    @media (max-width: 960px) {
+      .studio-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sidebar: Assets & Controls */
+    .studio-sidebar {
+      background: #0d0d18;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 260px);
+      overflow-y: auto;
+    }
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: #0b0b14;
+    }
+    .sidebar-tab-btn {
+      flex: 1;
+      padding: 12px 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: all var(--transition);
+      border-bottom: 2px solid transparent;
+    }
+    .sidebar-tab-btn.active {
+      color: #fff;
+      border-bottom-color: var(--accent-pink);
+      background: rgba(255,255,255,0.02);
+    }
+    .tab-content {
+      padding: 18px;
+      display: none;
       flex-direction: column;
       gap: 18px;
     }
-    .preview-stage {
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Center Stage: Phone Preview */
+    .studio-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #06060c;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
       padding: 20px;
+      background: radial-gradient(circle at center, #141424 0%, #06060c 100%);
       position: relative;
     }
-    /* 9:16 Canvas Mockup */
-    .phone-mockup {
-      width: 290px;
-      height: 515px; /* 9:16 */
+    .phone-container {
+      width: 280px;
+      height: 498px; /* 9:16 vertical */
       background: #000;
       border-radius: 28px;
-      border: 6px solid #222238;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 30px rgba(139, 92, 246, 0.2);
+      border: 5px solid #22223a;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(116,64,228,0.2);
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    #studio-canvas {
+    #editor-canvas {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
-    .tool-group {
+
+    /* Player Controls Bar */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 14px;
+      background: rgba(255,255,255,0.05);
+      padding: 8px 18px;
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* Bottom Timeline Area (CapCut Lookalike) */
+    .timeline-container {
+      background: #0a0a14;
+      border-top: 2px solid var(--border-color);
+      height: 200px;
       display: flex;
       flex-direction: column;
+      position: relative;
+      user-select: none;
+    }
+    .timeline-toolbar {
+      height: 38px;
+      background: #0f0f1c;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 0.8rem;
+    }
+    .timeline-tracks-wrap {
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      position: relative;
+      padding: 10px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Timeline Tracks */
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 38px;
+    }
+    .track-label {
+      width: 80px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
       gap: 6px;
     }
-    .tool-group label {
-      font-size: 0.8rem;
+    .track-lane {
+      flex: 1;
+      height: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+      gap: 4px;
+    }
+
+    /* Timeline Clip Blocks */
+    .timeline-block {
+      height: 100%;
+      border-radius: 6px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .preset-pill {
-      padding: 6px 12px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
       cursor: pointer;
-      transition: all 0.2s;
+      position: relative;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
-    .preset-pill:hover, .preset-pill.active {
-      background: var(--accent-gradient);
+    .block-hook-video {
+      background: linear-gradient(90deg, #4338ca, #6366f1);
+      border: 1px solid #818cf8;
       color: #fff;
-      border-color: transparent;
+    }
+    .block-user-footage {
+      background: linear-gradient(90deg, #0d9488, #14b8a6);
+      border: 1px solid #2dd4bf;
+      color: #fff;
+    }
+    .block-user-footage-empty {
+      background: rgba(20, 184, 166, 0.1);
+      border: 1px dashed #14b8a6;
+      color: #2dd4bf;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .block-caption {
+      background: linear-gradient(90deg, #9333ea, #c026d3);
+      border: 1px solid #e879f9;
+      color: #fff;
+    }
+    .block-audio {
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border: 1px solid #7dd3fc;
+      color: #fff;
+    }
+    .transition-node {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #EC4899;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid #fff;
+      box-shadow: 0 0 10px rgba(236,72,153,0.6);
+      z-index: 5;
+    }
+
+    /* Playhead Scrubber Needle */
+    .timeline-playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #EC4899;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .timeline-playhead::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -5px;
+      width: 12px;
+      height: 12px;
+      background: #EC4899;
+      clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+    }
+
+    /* Drag and Drop Box */
+    .drop-zone {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--accent-pink);
+      background: rgba(236,72,153,0.06);
     }
   </style>
 </head>
 <body>
 
-  <!-- ===== NAVBAR ===== -->
-  <nav class="navbar">
-    <div class="container">
-      <a href="index.html" class="navbar-brand">
-        <img src="images/logo.jpg" alt="HookMaster logo" class="logo-img" width="36" height="36">
-        <span>Hook<span class="gradient-text">Master</span> <span style="font-size: 0.72rem; padding: 2px 8px; background: rgba(236, 72, 153, 0.2); border: 1px solid var(--accent-pink); border-radius: 12px; vertical-align: middle; margin-left: 6px;">STUDIO</span></span>
+  <!-- Top Studio Header -->
+  <header class="studio-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="hooks.html" class="studio-brand">
+        <img src="images/logo.jpg" alt="HookMaster" class="logo-img" width="32" height="32">
+        <span style="font-weight: 800; font-size: 1.1rem;">Hook<span class="gradient-text">Master</span> <span style="font-size: 0.72rem; padding: 2px 8px; background: rgba(236, 72, 153, 0.2); border: 1px solid var(--accent-pink); border-radius: 12px; vertical-align: middle; margin-left: 4px;">STUDIO</span></span>
       </a>
-      <ul class="navbar-links" id="navbar-links">
-        <li><a href="hooks.html">Free Hooks</a></li>
-        <li><a href="prompts.html">AI Prompts</a></li>
-        <li><a href="shop.html">Pricing</a></li>
-      </ul>
-      <div class="navbar-cta">
-        <a href="shop.html#bundle" class="btn btn-primary btn-sm">Get All Access</a>
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">☰</button>
-      </div>
+      <span style="color: var(--border-color);">|</span>
+      <span id="project-title" style="font-size: 0.88rem; color: var(--text-secondary); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        CapCut-Style Reel Template
+      </span>
     </div>
-  </nav>
 
-  <div class="container" style="padding-top: 90px; padding-bottom: 50px;">
-    
-    <!-- Title -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 12px;">
-      <div>
-        <h1 style="font-size: 1.8rem; font-weight: 900;">✂️ Viral Reel <span class="gradient-text">Caption & Clip Studio</span></h1>
-        <p style="color: var(--text-secondary); font-size: 0.9rem;">Trim footage, style high-converting captions, and export ready-to-post 9:16 clips.</p>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="hooks.html" class="btn btn-secondary btn-sm">← All Hooks</a>
+      <button class="btn btn-primary btn-sm" id="btn-export-top" onclick="triggerExportFlow()">
+        📥 Export 1080p Video
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="studio-workspace">
+
+    <!-- Left Controls Panel -->
+    <aside class="studio-sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" onclick="switchSidebarTab('media', this)">
+          <span>🎥</span> Media
+        </button>
+        <button class="sidebar-tab-btn" onclick="switchSidebarTab('text', this)">
+          <span>✍️</span> Hook Text
+        </button>
+        <button class="sidebar-tab-btn" onclick="switchSidebarTab('audio', this)">
+          <span>🎵</span> Music
+        </button>
+        <button class="sidebar-tab-btn" onclick="switchSidebarTab('transition', this)">
+          <span>⚡</span> Transition
+        </button>
       </div>
-      <div>
-        <button class="btn btn-primary" onclick="exportEditedClip()" style="padding: 10px 22px;">
-          ⚡ Export 1080p Clip
+
+      <!-- TAB 1: MEDIA (Hook Clip + User Footage) -->
+      <div class="tab-content active" id="tab-media">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">1. Hook Opener (0s – <span id="lbl-hook-dur">4s</span>)</label>
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; margin-top: 6px; display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 60px; background: #000; border-radius: 6px; overflow: hidden; flex-shrink: 0;">
+              <video id="thumb-hook-video" muted style="width: 100%; height: 100%; object-fit: cover;"></video>
+            </div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 700; font-size: 0.85rem;" id="lbl-hook-name">Viral Hook Opener</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Pre-loaded 1080p B-Roll</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('file-hook-replace').click()" style="padding: 4px 10px; font-size: 0.75rem;">Change</button>
+            <input type="file" id="file-hook-replace" accept="video/mp4,video/webm,video/quicktime" style="display:none;" onchange="handleReplaceHookVideo(event)">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">2. Your Footage (Added After Hook)</label>
+          <div class="drop-zone" id="drop-zone-user" onclick="document.getElementById('file-user-footage').click()">
+            <div style="font-size: 1.8rem; margin-bottom: 6px;">🎬</div>
+            <div style="font-weight: 700; font-size: 0.9rem;" id="lbl-user-footage-status">Drag & drop your footage here</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">or click to browse 9:16 video (MP4, MOV, WebM)</div>
+            <input type="file" id="file-user-footage" accept="video/mp4,video/webm,video/quicktime" style="display: none;" onchange="handleUserFootageUpload(event)">
+          </div>
+          <div id="user-footage-controls" style="display: none; margin-top: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; align-items: center; justify-content: space-between;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.85rem;" id="lbl-user-file-name">my_talking_head.mp4</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);" id="lbl-user-file-dur">Duration: 6.0s</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="removeUserFootage()" style="color: #f87171;">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: TEXT & CAPTION -->
+      <div class="tab-content" id="tab-text">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Hook Caption Text</label>
+          <textarea id="caption-input" rows="3" class="search-input" style="padding: 10px 14px; font-size: 0.95rem; margin-top: 6px;" oninput="drawCurrentFrame()">Stop scrolling if you want your Reels to blow up</textarea>
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Typography Style</label>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <button class="btn btn-secondary btn-sm active" id="btn-font-inter" onclick="setFontStyle('Inter', this)">Modern Sans</button>
+            <button class="btn btn-secondary btn-sm" id="btn-font-montserrat" onclick="setFontStyle('Montserrat', this)">Bold Punch</button>
+            <button class="btn btn-secondary btn-sm" id="btn-font-bebas" onclick="setFontStyle('Bebas Neue', this)">Bebas Tall</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Position</label>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <button class="btn btn-secondary btn-sm" onclick="setTextPosition('top', this)">Top</button>
+            <button class="btn btn-secondary btn-sm active" onclick="setTextPosition('center', this)">Center</button>
+            <button class="btn btn-secondary btn-sm" onclick="setTextPosition('bottom', this)">Lower 3rd</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Text Color</label>
+            <input type="color" id="text-color-picker" value="#ffffff" class="search-input" style="padding: 2px; height: 38px; margin-top: 6px;" onchange="drawCurrentFrame()">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Accent Stripe</label>
+            <input type="color" id="highlight-color-picker" value="#EC4899" class="search-input" style="padding: 2px; height: 38px; margin-top: 6px;" onchange="drawCurrentFrame()">
+          </div>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer; text-transform: none;">
+          <input type="checkbox" id="pill-bg-toggle" checked onchange="drawCurrentFrame()">
+          <span>High-contrast dark pill backdrop</span>
+        </label>
+      </div>
+
+      <!-- TAB 3: AUDIO & MUSIC -->
+      <div class="tab-content" id="tab-audio">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Viral Background Music</label>
+          <select id="bgm-select" class="search-input" style="margin-top: 6px;" onchange="handleBgmChange(this.value)">
+            <option value="none">No Background Music (Original Video Sound)</option>
+            <option value="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3">🔥 Phonk / Energetic Beat</option>
+            <option value="https://assets.mixkit.co/music/preview/mixkit-chill-bro-494.mp3">☕ Chill Lofi / Aesthetic</option>
+            <option value="https://assets.mixkit.co/music/preview/mixkit-deep-urban-623.mp3">💼 Modern Business / Hip-hop</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Upload Custom Audio (MP3/WAV)</label>
+          <input type="file" id="file-custom-audio" accept="audio/*" class="search-input" style="margin-top: 6px;" onchange="handleCustomAudioUpload(event)">
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Music Volume: <span id="lbl-music-vol">70%</span></label>
+          <input type="range" id="slider-music-vol" min="0" max="100" value="70" class="search-input" style="padding: 0; margin-top: 6px;" oninput="updateMusicVolume(this.value)">
+        </div>
+      </div>
+
+      <!-- TAB 4: TRANSITION -->
+      <div class="tab-content" id="tab-transition">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Transition Style (Hook → Footage)</label>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 4px 0 12px;">Controls the visual effect when the hook opener switches into your own footage.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+              <input type="radio" name="transition-type" value="cut" checked onchange="currentTransition = this.value">
+              <div>
+                <div style="font-weight: 700; font-size: 0.85rem;">⚡ Hard Cut (Instant)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Recommended for high-retention fast Reels</div>
+              </div>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+              <input type="radio" name="transition-type" value="fade" onchange="currentTransition = this.value">
+              <div>
+                <div style="font-weight: 700; font-size: 0.85rem;">✨ Smooth Dissolve / Crossfade (0.3s)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Great for aesthetic & lifestyle b-roll</div>
+              </div>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; cursor: pointer;">
+              <input type="radio" name="transition-type" value="flash" onchange="currentTransition = this.value">
+              <div>
+                <div style="font-weight: 700; font-size: 0.85rem;">⚡ White Flash Pulse</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">High-energy beat drop effect</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Center Preview Stage -->
+    <main class="studio-stage">
+      <div class="phone-container">
+        <canvas id="editor-canvas" width="720" height="1280"></canvas>
+      </div>
+
+      <div class="playback-bar">
+        <button class="btn btn-secondary btn-sm" id="btn-play-pause" onclick="togglePlayback()" style="padding: 6px 14px;">
+          ▶ Play
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="restartPlayback()" style="padding: 6px 12px;">
+          ↺
+        </button>
+        <span style="font-size: 0.85rem; font-weight: 700; color: #fff;" id="timecode-display">0:00 / 0:04</span>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Bottom CapCut-Style Timeline -->
+  <section class="timeline-container">
+    <div class="timeline-toolbar">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <span style="font-weight: 800; color: #fff; font-size: 0.85rem;">🎬 Timeline</span>
+        <span style="color: var(--text-muted); font-size: 0.75rem;" id="lbl-total-timeline-dur">Total: 4.0s (Hook only)</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" style="font-size: 0.75rem; padding: 3px 10px;" onclick="document.getElementById('file-user-footage').click()">
+          + Add Footage
         </button>
       </div>
     </div>
 
-    <!-- 3-Column Studio Workspace -->
-    <div class="studio-grid">
-      
-      <!-- Left Panel: Clip & Timing -->
-      <div class="studio-panel">
-        <h3 style="font-size: 1.1rem; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-          1. Select Footage
-        </h3>
+    <div class="timeline-tracks-wrap" id="timeline-area" onclick="handleTimelineClick(event)">
+      <div class="timeline-playhead" id="playhead" style="left: 96px;"></div>
 
-        <div class="tool-group">
-          <label>Sample Vault Clip</label>
-          <select id="clip-preset-select" class="search-input" style="padding: 10px 14px;" onchange="loadPresetClip(this.value)">
-            <option value="https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4">💻 Laptop & Hustle (Business)</option>
-            <option value="https://assets.mixkit.co/videos/preview/mixkit-counting-money-bills-42653-large.mp4">💵 Dark Cash Counting (Wealth)</option>
-            <option value="https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-weights-in-a-gym-41584-large.mp4">🏋️ Hardcore Weightlifting (Gym)</option>
-            <option value="https://assets.mixkit.co/videos/preview/mixkit-skincare-routine-with-cream-43542-large.mp4">✨ Aesthetic Glow & Cream (Beauty)</option>
-            <option value="https://assets.mixkit.co/videos/preview/mixkit-night-sky-with-stars-at-a-calm-lake-time-lapse-42531-large.mp4">🌌 Stars & Calm Lake (Cinematic)</option>
-          </select>
-        </div>
-
-        <div class="tool-group">
-          <label>Or Upload Your Own MP4</label>
-          <input type="file" id="user-video-upload" accept="video/mp4,video/quicktime" class="search-input" style="padding: 8px 12px;" onchange="handleUserVideoUpload(event)">
-        </div>
-
-        <div style="border-top: 1px solid var(--border-color); margin: 6px 0;"></div>
-
-        <h3 style="font-size: 1.1rem; font-weight: 800;">
-          2. Trim & Speed
-        </h3>
-
-        <div class="tool-group">
-          <label>Start Time (Seconds): <span id="val-trim-start" style="color: var(--accent-purple);">0s</span></label>
-          <input type="range" id="trim-start" min="0" max="10" step="0.5" value="0" class="search-input" style="padding: 0;" oninput="updateTrimTiming()">
-        </div>
-
-        <div class="tool-group">
-          <label>End Time (Seconds): <span id="val-trim-end" style="color: var(--accent-purple);">4s</span></label>
-          <input type="range" id="trim-end" min="1" max="15" step="0.5" value="4" class="search-input" style="padding: 0;" oninput="updateTrimTiming()">
-        </div>
-
-        <div class="tool-group">
-          <label>Playback Speed</label>
-          <div style="display: flex; gap: 8px;">
-            <button class="preset-pill active" onclick="setSpeed(1.0, this)">1.0x</button>
-            <button class="preset-pill" onclick="setSpeed(1.25, this)">1.25x</button>
-            <button class="preset-pill" onclick="setSpeed(1.5, this)">1.5x (Viral)</button>
+      <!-- Track 1: Text Caption -->
+      <div class="track-row">
+        <div class="track-label"><span>✍️</span> Text</div>
+        <div class="track-lane">
+          <div class="timeline-block block-caption" id="block-text-track" style="width: 45%;">
+            📝 Hook Caption Overlay
           </div>
-        </div>
-
-        <div class="tool-group">
-          <label>Audio</label>
-          <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; text-transform: none;">
-            <input type="checkbox" id="mute-audio-toggle" checked onchange="toggleMute(this.checked)"> Mute footage (Recommended for Reels trending audio)
-          </label>
         </div>
       </div>
 
-      <!-- Center Panel: 9:16 Canvas Live Preview -->
-      <div class="preview-stage">
-        
-        <div class="phone-mockup">
-          <canvas id="studio-canvas" width="720" height="1280"></canvas>
-        </div>
-
-        <!-- Video Controls Bar -->
-        <div style="display: flex; gap: 14px; align-items: center; margin-top: 18px;">
-          <button class="btn btn-secondary btn-sm" id="btn-play-pause" onclick="togglePlay()">
-            ▶ Play
-          </button>
-          <button class="btn btn-secondary btn-sm" onclick="restartVideo()">
-            ↺ Restart
-          </button>
-          <span style="font-size: 0.85rem; color: var(--text-muted);" id="playback-time-display">0:00 / 0:04</span>
-        </div>
-
-        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
-          9:16 High-Retention Vertical Ratio (1080x1920)
+      <!-- Track 2: Video (Hook + Transition + User Footage) -->
+      <div class="track-row">
+        <div class="track-label"><span>🎥</span> Video</div>
+        <div class="track-lane">
+          <div class="timeline-block block-hook-video" id="block-video-hook" style="width: 45%;">
+            🎥 Hook Opener (<span id="lbl-tb-hook-dur">4s</span>)
+          </div>
+          <div class="transition-node" id="btn-transition-indicator" title="Transition between clips" onclick="switchSidebarTab('transition')">
+            ⚡
+          </div>
+          <div class="timeline-block block-user-footage-empty" id="block-user-footage" style="width: 50%;" onclick="document.getElementById('file-user-footage').click()">
+            + Drop or Click to Add Footage
+          </div>
         </div>
       </div>
 
-      <!-- Right Panel: Caption & Text Styling -->
-      <div class="studio-panel">
-        <h3 style="font-size: 1.1rem; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-          3. Viral Hook Caption
-        </h3>
-
-        <div class="tool-group">
-          <label>Hook Text</label>
-          <textarea id="caption-input" rows="3" class="search-input" style="padding: 10px 14px; font-size: 0.95rem; line-height: 1.4;" oninput="redrawCanvas()">Stop scrolling if you want your Reels to blow up</textarea>
-        </div>
-
-        <div class="tool-group">
-          <label>Font Style</label>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="preset-pill active" onclick="setFont('Inter', this)">Modern Sans</button>
-            <button class="preset-pill" onclick="setFont('Montserrat', this)">Bold Punch</button>
-            <button class="preset-pill" onclick="setFont('Bebas Neue', this)">Bebas Tall</button>
+      <!-- Track 3: Audio -->
+      <div class="track-row">
+        <div class="track-label"><span>🎵</span> Audio</div>
+        <div class="track-lane">
+          <div class="timeline-block block-audio" id="block-audio-track" style="width: 100%;">
+            🎵 Audio Track (<span id="lbl-audio-name">Original Audio</span>)
           </div>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="tool-group">
-          <label>Caption Position</label>
-          <div style="display: flex; gap: 8px;">
-            <button class="preset-pill" onclick="setPosition('top', this)">Top</button>
-            <button class="preset-pill active" onclick="setPosition('center', this)">Center</button>
-            <button class="preset-pill" onclick="setPosition('bottom', this)">Lower 3rd</button>
-          </div>
-        </div>
+  <!-- Hidden Video & Audio Media Elements for Stitched Rendering -->
+  <video id="v-hook" crossorigin="anonymous" playsinline muted preload="auto" style="display: none;"></video>
+  <video id="v-user" crossorigin="anonymous" playsinline muted preload="auto" style="display: none;"></video>
+  <audio id="bgm-player" crossorigin="anonymous" preload="auto" style="display: none;"></audio>
 
-        <div class="tool-group">
-          <label>Font Size (<span id="val-font-size">38px</span>)</label>
-          <input type="range" id="font-size-slider" min="26" max="64" value="38" class="search-input" style="padding: 0;" oninput="updateFontSize(this.value)">
-        </div>
+  <!-- ===== DOWNLOAD / AD EXPORT MODAL ===== -->
+  <div class="modal-overlay" id="export-modal" style="z-index: 3000;">
+    <div class="download-modal" style="max-width: 520px;">
+      <button class="modal-close" onclick="closeExportModal()" aria-label="Close">✕</button>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="tool-group">
-            <label>Text Color</label>
-            <input type="color" id="text-color-picker" value="#ffffff" class="search-input" style="padding: 2px; height: 38px;" onchange="redrawCanvas()">
-          </div>
-          <div class="tool-group">
-            <label>Highlight Color</label>
-            <input type="color" id="highlight-color-picker" value="#EC4899" class="search-input" style="padding: 2px; height: 38px;" onchange="redrawCanvas()">
-          </div>
-        </div>
+      <div style="text-align: center; margin-bottom: 12px;">
+        <span class="badge badge-resolution" style="margin-bottom: 8px;">1080x1920 Full HD</span>
+        <h3 style="font-size: 1.5rem; font-weight: 900; color: #fff;">Rendering Your <span class="gradient-text">Viral Reel</span></h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem;">Combining hook opener, footage, viral caption & transition...</p>
+      </div>
 
-        <div class="tool-group">
-          <label>Background Box Style</label>
-          <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; text-transform: none;">
-            <input type="checkbox" id="pill-bg-toggle" checked onchange="redrawCanvas()"> High-contrast dark backdrop box
-          </label>
-        </div>
-
-        <div style="margin-top: auto; padding-top: 14px; border-top: 1px solid var(--border-color);">
-          <button class="btn btn-secondary btn-sm" onclick="copyCaptionOnly()" style="width: 100%; justify-content: center; margin-bottom: 8px;">
-            📋 Copy Caption Text
-          </button>
-          <button class="btn btn-primary" onclick="exportEditedClip()" style="width: 100%; justify-content: center;">
-            📥 Export Customized Clip
-          </button>
+      <!-- Countdown Bar -->
+      <div class="countdown-box">
+        <div class="countdown-number" id="ad-countdown">5</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Export will download automatically in <span id="ad-sec-text">5 seconds</span></div>
+        <div class="countdown-progress-bar">
+          <div class="countdown-progress-fill" id="ad-progress-fill" style="width: 100%;"></div>
         </div>
       </div>
 
+      <!-- AD CONTAINER / SPONSOR SLOT (Monetization System) -->
+      <div class="ad-slot-container" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--accent-purple); border-radius: var(--radius-md); padding: 18px; margin: 16px 0; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Sponsored · HookMaster Pro</span>
+          <span style="font-size: 0.7rem; color: var(--accent-pink); font-weight: 700;">PRO VAULT</span>
+        </div>
+        <h4 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 4px;">Unlock 4,000+ 4K Hooks & AI Prompts</h4>
+        <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 12px;">Get unlimited access to million-view hook archives, luxury b-roll, and caption templates.</p>
+        <a href="shop.html#bundle" target="_blank" class="btn btn-primary btn-sm" style="display: inline-flex;">
+          Explore All Access Bundle — $49 →
+        </a>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center;" id="btn-skip-download" disabled onclick="executeImmediateDownload()">
+          ⏳ Preparing Download (Please Wait)
+        </button>
+      </div>
     </div>
   </div>
-
-  <!-- Hidden Working Video Element for Canvas Rendering -->
-  <video id="hidden-video" crossorigin="anonymous" playsinline loop muted style="display: none;"></video>
 
   <script src="js/auth.js"></script>
   <script src="js/cloud.js"></script>
   <script src="js/main.js"></script>
+
   <script>
-    const canvas = document.getElementById('studio-canvas');
+    /* =========================================================
+       HOOKMASTER CAPCUT-STYLE STUDIO ENGINE
+       ========================================================= */
+
+    const canvas = document.getElementById('editor-canvas');
     const ctx = canvas.getContext('2d');
-    const video = document.getElementById('hidden-video');
+    const vHook = document.getElementById('v-hook');
+    const vUser = document.getElementById('v-user');
+    const bgmPlayer = document.getElementById('bgm-player');
+
+    // State
+    let hookDuration = 4.0;
+    let userDuration = 0.0;
+    let totalDuration = 4.0;
+    let currentTime = 0.0;
+    let isPlaying = false;
+    let animationLoopId = null;
 
     let currentFont = 'Inter';
-    let currentPosition = 'center'; // 'top', 'center', 'bottom'
-    let currentFontSize = 38;
-    let startTime = 0;
-    let endTime = 4;
-    let isPlaying = false;
-    let animationFrameId = null;
+    let currentPosition = 'center';
+    let currentTransition = 'cut'; // 'cut', 'fade', 'flash'
+    let currentHookData = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPresetClip(document.getElementById('clip-preset-select').value);
+    // Drag and Drop listeners
+    const dropZone = document.getElementById('drop-zone-user');
+    ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, (ev) => { ev.preventDefault(); dropZone.classList.add('dragover'); }));
+    ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, (ev) => { ev.preventDefault(); dropZone.classList.remove('dragover'); }));
+    dropZone.addEventListener('drop', (ev) => {
+      const files = ev.dataTransfer.files;
+      if (files && files[0]) loadUserFootageFile(files[0]);
     });
 
-    function loadPresetClip(url) {
-      video.src = url;
-      video.load();
-      video.onloadeddata = () => {
-        endTime = Math.min(Math.floor(video.duration) || 4, 6);
-        document.getElementById('trim-end').max = Math.floor(video.duration) || 15;
-        document.getElementById('trim-end').value = endTime;
-        document.getElementById('val-trim-end').innerText = endTime + 's';
-        video.currentTime = startTime;
-        startRenderingLoop();
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hookId = urlParams.get('hookId') || urlParams.get('id');
+
+      if (!allHooks || !allHooks.length) {
+        const [staticHooks, cloudHooks] = await Promise.all([
+          loadJSON('data/hooks.json'),
+          (typeof Cloud !== 'undefined' ? Cloud.fetchHooks() : Promise.resolve([]))
+        ]);
+        allHooks = [...cloudHooks, ...staticHooks];
+      }
+
+      const hook = allHooks.find(h => String(h.id) === String(hookId)) || allHooks[0];
+      if (hook) initStudioWithHook(hook);
+      else initStudioWithHook({
+        hook: 'Stop scrolling if you want your Reels to blow up',
+        duration: '4s',
+        videoSample: 'https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4'
+      });
+    });
+
+    function initStudioWithHook(hook) {
+      currentHookData = hook;
+      document.getElementById('project-title').textContent = `Editing: "${hook.hook}"`;
+      document.getElementById('caption-input').value = hook.hook;
+      document.getElementById('lbl-hook-name').textContent = `Hook: "${hook.hook.slice(0, 24)}..."`;
+
+      hookDuration = parseFloat(hook.duration) || 4.0;
+      document.getElementById('lbl-hook-dur').textContent = hookDuration + 's';
+      document.getElementById('lbl-tb-hook-dur').textContent = hookDuration + 's';
+
+      vHook.src = hook.videoSample;
+      vHook.load();
+      vHook.onloadedmetadata = () => {
+        if (!hookDuration || isNaN(hookDuration)) hookDuration = Math.min(vHook.duration || 4, 6);
+        updateTotalTimeline();
+        drawCurrentFrame();
+      };
+
+      document.getElementById('thumb-hook-video').src = hook.videoSample;
+    }
+
+    /* ---------- FOOTAGE HANDLING ---------- */
+    function handleUserFootageUpload(e) {
+      const file = e.target.files[0];
+      if (file) loadUserFootageFile(file);
+    }
+
+    function loadUserFootageFile(file) {
+      const url = URL.createObjectURL(file);
+      vUser.src = url;
+      vUser.load();
+      vUser.onloadedmetadata = () => {
+        userDuration = Math.min(vUser.duration || 6.0, 15.0);
+        document.getElementById('lbl-user-footage-status').textContent = '✅ Footage Loaded';
+        document.getElementById('lbl-user-file-name').textContent = file.name;
+        document.getElementById('lbl-user-file-dur').textContent = `Duration: ${userDuration.toFixed(1)}s`;
+        document.getElementById('user-footage-controls').style.display = 'flex';
+
+        // Update timeline block
+        const bUser = document.getElementById('block-user-footage');
+        bUser.className = 'timeline-block block-user-footage';
+        bUser.textContent = `🎬 Your Footage (${userDuration.toFixed(1)}s)`;
+
+        updateTotalTimeline();
+        showToast('Footage added after the hook!');
       };
     }
 
-    function handleUserVideoUpload(e) {
+    function removeUserFootage() {
+      vUser.src = '';
+      userDuration = 0;
+      document.getElementById('user-footage-controls').style.display = 'none';
+      document.getElementById('lbl-user-footage-status').textContent = 'Drag & drop your footage here';
+      const bUser = document.getElementById('block-user-footage');
+      bUser.className = 'timeline-block block-user-footage-empty';
+      bUser.textContent = '+ Drop or Click to Add Footage';
+      updateTotalTimeline();
+      drawCurrentFrame();
+    }
+
+    function handleReplaceHookVideo(e) {
       const file = e.target.files[0];
       if (!file) return;
       const url = URL.createObjectURL(file);
-      loadPresetClip(url);
-      showToast('Custom video loaded!');
+      vHook.src = url;
+      vHook.load();
+      vHook.onloadedmetadata = () => {
+        hookDuration = Math.min(vHook.duration || 4.0, 10.0);
+        document.getElementById('lbl-hook-dur').textContent = hookDuration.toFixed(1) + 's';
+        document.getElementById('lbl-tb-hook-dur').textContent = hookDuration.toFixed(1) + 's';
+        updateTotalTimeline();
+        drawCurrentFrame();
+        showToast('Hook opener video updated!');
+      };
     }
 
-    function startRenderingLoop() {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    function updateTotalTimeline() {
+      totalDuration = hookDuration + userDuration;
+      document.getElementById('lbl-total-timeline-dur').textContent = `Total: ${totalDuration.toFixed(1)}s (${userDuration > 0 ? 'Hook + Your Footage' : 'Hook only'})`;
+      updateTimecodeDisplay();
+    }
 
-      function render() {
-        if (!video.paused && !video.ended) {
-          if (video.currentTime >= endTime) {
-            video.currentTime = startTime;
-          }
-        }
+    /* ---------- PLAYBACK & TIMELINE ---------- */
+    function togglePlayback() {
+      if (isPlaying) pausePlayback();
+      else startPlayback();
+    }
 
-        drawFrame();
-        updateTimeDisplay();
-        animationFrameId = requestAnimationFrame(render);
+    function startPlayback() {
+      isPlaying = true;
+      document.getElementById('btn-play-pause').textContent = '⏸ Pause';
+      if (currentTime >= totalDuration) currentTime = 0;
+
+      if (currentTime < hookDuration) {
+        vHook.currentTime = currentTime;
+        vHook.play().catch(() => {});
+      } else if (userDuration > 0) {
+        vUser.currentTime = currentTime - hookDuration;
+        vUser.play().catch(() => {});
       }
-      animationFrameId = requestAnimationFrame(render);
+
+      if (bgmPlayer.src && bgmPlayer.src !== location.href && !bgmPlayer.paused) {
+        bgmPlayer.currentTime = currentTime;
+        bgmPlayer.play().catch(() => {});
+      }
+
+      lastTimestamp = performance.now();
+      animationLoopId = requestAnimationFrame(playbackLoop);
     }
 
-    function drawFrame() {
+    function pausePlayback() {
+      isPlaying = false;
+      document.getElementById('btn-play-pause').textContent = '▶ Play';
+      vHook.pause();
+      vUser.pause();
+      bgmPlayer.pause();
+      if (animationLoopId) cancelAnimationFrame(animationLoopId);
+    }
+
+    function restartPlayback() {
+      currentTime = 0;
+      vHook.currentTime = 0;
+      vUser.currentTime = 0;
+      bgmPlayer.currentTime = 0;
+      drawCurrentFrame();
+      if (isPlaying) startPlayback();
+    }
+
+    let lastTimestamp = performance.now();
+    function playbackLoop(timestamp) {
+      if (!isPlaying) return;
+      const delta = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      currentTime += delta;
+      if (currentTime >= totalDuration) {
+        currentTime = 0;
+      }
+
+      // Sync active video
+      if (currentTime < hookDuration) {
+        if (vHook.paused) vHook.play().catch(() => {});
+        if (!vUser.paused) vUser.pause();
+      } else if (userDuration > 0) {
+        if (!vHook.paused) vHook.pause();
+        if (vUser.paused) {
+          vUser.currentTime = currentTime - hookDuration;
+          vUser.play().catch(() => {});
+        }
+      }
+
+      drawCurrentFrame();
+      updatePlayheadPosition();
+      updateTimecodeDisplay();
+
+      animationLoopId = requestAnimationFrame(playbackLoop);
+    }
+
+    function updatePlayheadPosition() {
+      const playhead = document.getElementById('playhead');
+      const timelineArea = document.getElementById('timeline-area');
+      const usableWidth = timelineArea.clientWidth - 110;
+      const pct = Math.min(1, Math.max(0, currentTime / (totalDuration || 1)));
+      playhead.style.left = (96 + (pct * usableWidth)) + 'px';
+    }
+
+    function updateTimecodeDisplay() {
+      const cur = currentTime.toFixed(1);
+      const tot = totalDuration.toFixed(1);
+      document.getElementById('timecode-display').textContent = `0:0${Math.floor(cur)} / 0:0${Math.floor(tot)}`;
+    }
+
+    function handleTimelineClick(e) {
+      const timelineArea = document.getElementById('timeline-area');
+      const rect = timelineArea.getBoundingClientRect();
+      const clickX = e.clientX - rect.left - 96;
+      const usableWidth = timelineArea.clientWidth - 110;
+      if (clickX >= 0 && usableWidth > 0) {
+        const pct = Math.min(1, Math.max(0, clickX / usableWidth));
+        currentTime = pct * totalDuration;
+        if (currentTime < hookDuration) {
+          vHook.currentTime = currentTime;
+        } else if (userDuration > 0) {
+          vUser.currentTime = currentTime - hookDuration;
+        }
+        drawCurrentFrame();
+        updatePlayheadPosition();
+        updateTimecodeDisplay();
+      }
+    }
+
+    /* ---------- RENDERING ENGINE ---------- */
+    function drawCurrentFrame() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw 9:16 Video (Cover scale)
-      if (video.videoWidth) {
-        const vRatio = video.videoWidth / video.videoHeight;
-        const cRatio = canvas.width / canvas.height;
-        let sWidth, sHeight, sx, sy;
+      let currentSource = null;
+      let isTransitioning = false;
+      let transitionProgress = 0;
 
-        if (vRatio > cRatio) {
-          sHeight = video.videoHeight;
-          sWidth = video.videoHeight * cRatio;
-          sx = (video.videoWidth - sWidth) / 2;
-          sy = 0;
-        } else {
-          sWidth = video.videoWidth;
-          sHeight = video.videoWidth / cRatio;
-          sx = 0;
-          sy = (video.videoHeight - sHeight) / 2;
-        }
-        ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+      // Check if we are in transition window (0.3s around the cut)
+      const transWindow = 0.35;
+      if (userDuration > 0 && Math.abs(currentTime - hookDuration) < transWindow) {
+        isTransitioning = true;
+        transitionProgress = (currentTime - (hookDuration - transWindow)) / (transWindow * 2);
+      }
+
+      if (currentTime < hookDuration) {
+        currentSource = vHook;
+      } else if (userDuration > 0) {
+        currentSource = vUser;
       } else {
-        // Fallback gradient while loading
+        currentSource = vHook;
+      }
+
+      // Draw Base Video Frame (9:16 aspect cover)
+      if (currentSource && currentSource.videoWidth) {
+        drawVideoCover(currentSource, 1.0);
+      } else {
+        // Gradient fallback
         const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grad.addColorStop(0, '#111827');
-        grad.addColorStop(1, '#000000');
+        grad.addColorStop(1, '#05050c');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      // Draw Subtle Vignette / Shadow Overlay
+      // Transition effects
+      if (isTransitioning) {
+        if (currentTransition === 'fade' && vUser.videoWidth && currentTime < hookDuration) {
+          // Crossfade next clip
+          drawVideoCover(vUser, transitionProgress);
+        } else if (currentTransition === 'flash') {
+          // White flash
+          const flashAlpha = Math.sin(transitionProgress * Math.PI) * 0.85;
+          ctx.fillStyle = `rgba(255, 255, 255, ${flashAlpha})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      // Vignette
       const darkGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      darkGrad.addColorStop(0, 'rgba(0,0,0,0.4)');
-      darkGrad.addColorStop(0.3, 'rgba(0,0,0,0.05)');
-      darkGrad.addColorStop(0.7, 'rgba(0,0,0,0.05)');
-      darkGrad.addColorStop(1, 'rgba(0,0,0,0.6)');
+      darkGrad.addColorStop(0, 'rgba(0,0,0,0.35)');
+      darkGrad.addColorStop(0.3, 'rgba(0,0,0,0.02)');
+      darkGrad.addColorStop(0.7, 'rgba(0,0,0,0.02)');
+      darkGrad.addColorStop(1, 'rgba(0,0,0,0.55)');
       ctx.fillStyle = darkGrad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Caption Overlay
-      drawCaption();
+      // Draw Hook Caption ONLY during hook duration
+      if (currentTime <= (hookDuration + 0.1)) {
+        drawCaptionText();
+      }
     }
 
-    function drawCaption() {
+    function drawVideoCover(videoEl, alpha = 1.0) {
+      if (!videoEl || !videoEl.videoWidth) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const vRatio = videoEl.videoWidth / videoEl.videoHeight;
+      const cRatio = canvas.width / canvas.height;
+      let sWidth, sHeight, sx, sy;
+
+      if (vRatio > cRatio) {
+        sHeight = videoEl.videoHeight;
+        sWidth = videoEl.videoHeight * cRatio;
+        sx = (videoEl.videoWidth - sWidth) / 2;
+        sy = 0;
+      } else {
+        sWidth = videoEl.videoWidth;
+        sHeight = videoEl.videoWidth / cRatio;
+        sx = 0;
+        sy = (videoEl.videoHeight - sHeight) / 2;
+      }
+      ctx.drawImage(videoEl, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
+
+    function drawCaptionText() {
       const text = document.getElementById('caption-input').value.trim();
       if (!text) return;
 
@@ -386,44 +946,32 @@
       const hasPillBg = document.getElementById('pill-bg-toggle').checked;
 
       ctx.save();
-      ctx.font = `900 ${currentFontSize}px '${currentFont}', sans-serif`;
+      ctx.font = `900 38px '${currentFont}', sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // Wrap lines
       const maxWidth = canvas.width - 90;
       const words = text.split(' ');
       const lines = [];
       let currentLine = words[0];
 
       for (let i = 1; i < words.length; i++) {
-        const testLine = currentLine + ' ' + words[i];
-        if (ctx.measureText(testLine).width < maxWidth) {
-          currentLine = testLine;
-        } else {
-          lines.push(currentLine);
-          currentLine = words[i];
-        }
+        const test = currentLine + ' ' + words[i];
+        if (ctx.measureText(test).width < maxWidth) currentLine = test;
+        else { lines.push(currentLine); currentLine = words[i]; }
       }
       lines.push(currentLine);
 
-      // Determine Y anchor
-      let startY = canvas.height / 2;
-      const lineHeight = currentFontSize * 1.35;
+      const lineHeight = 38 * 1.35;
       const totalBlockHeight = lines.length * lineHeight;
+      let startY = canvas.height / 2;
+      if (currentPosition === 'top') startY = 230;
+      else if (currentPosition === 'bottom') startY = canvas.height - 250;
 
-      if (currentPosition === 'top') {
-        startY = 220;
-      } else if (currentPosition === 'bottom') {
-        startY = canvas.height - 240;
-      }
-
-      // Draw Dark Backdrop Pill if enabled
       if (hasPillBg) {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
         const maxLineWidth = Math.max(...lines.map(l => ctx.measureText(l).width));
-        const padX = 26;
-        const padY = 16;
+        const padX = 24, padY = 16;
         const pillX = (canvas.width - maxLineWidth) / 2 - padX;
         const pillY = startY - (totalBlockHeight / 2) - padY;
         const pillW = maxLineWidth + (padX * 2);
@@ -433,23 +981,18 @@
         ctx.roundRect(pillX, pillY, pillW, pillH, 16);
         ctx.fill();
 
-        // Left accent stripe
         ctx.fillStyle = highlightColor;
         ctx.beginPath();
         ctx.roundRect(pillX, pillY, 6, pillH, [16, 0, 0, 16]);
         ctx.fill();
       }
 
-      // Draw Lines of Text
       lines.forEach((line, idx) => {
         const lineY = (startY - (totalBlockHeight / 2)) + (idx * lineHeight) + (lineHeight / 2);
-
-        // Text Shadow
         ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
         ctx.shadowBlur = 12;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 3;
-
         ctx.fillStyle = textColor;
         ctx.fillText(line, canvas.width / 2, lineY);
       });
@@ -457,92 +1000,116 @@
       ctx.restore();
     }
 
-    function redrawCanvas() {
-      drawFrame();
-    }
+    /* ---------- TAB & CONTROLS UI ---------- */
+    function switchSidebarTab(tabName, btnEl) {
+      document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-    function togglePlay() {
-      const btn = document.getElementById('btn-play-pause');
-      if (video.paused) {
-        video.play();
-        btn.innerText = '⏸ Pause';
-        isPlaying = true;
-      } else {
-        video.pause();
-        btn.innerText = '▶ Play';
-        isPlaying = false;
+      if (btnEl) btnEl.classList.add('active');
+      else {
+        const idx = ['media', 'text', 'audio', 'transition'].indexOf(tabName);
+        if (idx >= 0) document.querySelectorAll('.sidebar-tab-btn')[idx]?.classList.add('active');
       }
+
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.classList.add('active');
     }
 
-    function restartVideo() {
-      video.currentTime = startTime;
-      video.play();
-      document.getElementById('btn-play-pause').innerText = '⏸ Pause';
-      isPlaying = true;
-    }
-
-    function updateTimeDisplay() {
-      const cur = Math.max(0, video.currentTime - startTime).toFixed(1);
-      const total = (endTime - startTime).toFixed(1);
-      document.getElementById('playback-time-display').innerText = `0:0${Math.floor(cur)} / 0:0${Math.floor(total)}`;
-    }
-
-    function updateTrimTiming() {
-      startTime = parseFloat(document.getElementById('trim-start').value);
-      endTime = parseFloat(document.getElementById('trim-end').value);
-      if (endTime <= startTime) {
-        endTime = startTime + 1;
-        document.getElementById('trim-end').value = endTime;
-      }
-      document.getElementById('val-trim-start').innerText = startTime + 's';
-      document.getElementById('val-trim-end').innerText = endTime + 's';
-      video.currentTime = startTime;
-      redrawCanvas();
-    }
-
-    function setSpeed(speed, btn) {
-      video.playbackRate = speed;
+    function setFontStyle(font, btn) {
+      currentFont = font;
       btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      drawCurrentFrame();
     }
 
-    function toggleMute(isMuted) {
-      video.muted = isMuted;
-    }
-
-    function setFont(fontName, btn) {
-      currentFont = fontName;
-      btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      redrawCanvas();
-    }
-
-    function setPosition(pos, btn) {
+    function setTextPosition(pos, btn) {
       currentPosition = pos;
       btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      redrawCanvas();
+      drawCurrentFrame();
     }
 
-    function updateFontSize(val) {
-      currentFontSize = parseInt(val);
-      document.getElementById('val-font-size').innerText = val + 'px';
-      redrawCanvas();
+    function handleBgmChange(url) {
+      if (!url || url === 'none') {
+        bgmPlayer.pause();
+        bgmPlayer.src = '';
+        document.getElementById('lbl-audio-name').textContent = 'Original Audio';
+      } else {
+        bgmPlayer.src = url;
+        bgmPlayer.volume = parseInt(document.getElementById('slider-music-vol').value) / 100;
+        document.getElementById('lbl-audio-name').textContent = 'Viral BGM';
+      }
     }
 
-    function copyCaptionOnly() {
-      const text = document.getElementById('caption-input').value;
-      navigator.clipboard.writeText(text);
-      showToast('Caption copied to clipboard!');
+    function handleCustomAudioUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      bgmPlayer.src = URL.createObjectURL(file);
+      bgmPlayer.volume = parseInt(document.getElementById('slider-music-vol').value) / 100;
+      document.getElementById('lbl-audio-name').textContent = file.name;
+      showToast('Custom audio track loaded!');
     }
 
-    function exportEditedClip() {
-      showToast('Preparing your customized 1080p MP4 export...');
+    function updateMusicVolume(val) {
+      document.getElementById('lbl-music-vol').textContent = val + '%';
+      bgmPlayer.volume = parseInt(val) / 100;
+    }
 
-      // Record 1 loop of canvas
-      video.currentTime = startTime;
-      video.play();
-      document.getElementById('btn-play-pause').innerText = '⏸ Pause';
+    /* ---------- EXPORT & AD GATE FLOW ---------- */
+    let exportCountdownTimer = null;
+
+    function triggerExportFlow() {
+      // 1. Auth Gate: Must be logged in to download / export
+      if (typeof HookAuth !== 'undefined' && typeof AUTH_CONFIGURED !== 'undefined' && AUTH_CONFIGURED && !HookAuth.isLoggedIn) {
+        HookAuth.openModal();
+        showToast('Please sign in (free) to export your video.');
+        return;
+      }
+
+      pausePlayback();
+      document.getElementById('export-modal').classList.add('active');
+
+      // Start 5-second countdown with ad presentation
+      let secondsLeft = 5;
+      const countEl = document.getElementById('ad-countdown');
+      const progressFill = document.getElementById('ad-progress-fill');
+      const btnSkip = document.getElementById('btn-skip-download');
+
+      countEl.textContent = secondsLeft;
+      progressFill.style.width = '100%';
+      btnSkip.disabled = true;
+      btnSkip.textContent = `⏳ Rendering Reel... (${secondsLeft}s)`;
+
+      if (exportCountdownTimer) clearInterval(exportCountdownTimer);
+
+      exportCountdownTimer = setInterval(() => {
+        secondsLeft--;
+        countEl.textContent = secondsLeft;
+        progressFill.style.width = (secondsLeft / 5 * 100) + '%';
+        btnSkip.textContent = `⏳ Rendering Reel... (${secondsLeft}s)`;
+
+        if (secondsLeft <= 0) {
+          clearInterval(exportCountdownTimer);
+          btnSkip.disabled = false;
+          btnSkip.className = 'btn btn-primary btn-lg';
+          btnSkip.textContent = '⬇ Click to Download 1080p Video';
+          executeImmediateDownload();
+        }
+      }, 1000);
+    }
+
+    function closeExportModal() {
+      if (exportCountdownTimer) clearInterval(exportCountdownTimer);
+      document.getElementById('export-modal').classList.remove('active');
+    }
+
+    function executeImmediateDownload() {
+      showToast('Stitching & generating final video MP4/WebM...');
+      closeExportModal();
+
+      // Record canvas stream through totalDuration
+      currentTime = 0;
+      startPlayback();
 
       const stream = canvas.captureStream(30);
       let recorder;
@@ -555,34 +1122,19 @@
       const chunks = [];
       recorder.ondataavailable = (e) => chunks.push(e.data);
       recorder.onstop = () => {
+        pausePlayback();
         const blob = new Blob(chunks, { type: 'video/webm' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `HookMaster_Custom_Hook.webm`;
+        a.download = `HookMaster_${Date.now()}_ViralReel.webm`;
         a.click();
-        showToast('Export downloaded successfully! Ready to post on Reels/TikTok.');
+        showToast('Final combined video downloaded successfully! Ready to post on TikTok/Reels.');
       };
 
       recorder.start();
-      const recordDuration = (endTime - startTime) * 1000;
       setTimeout(() => {
-        if (recorder.state === 'recording') {
-          recorder.stop();
-        }
-      }, recordDuration);
-    }
-
-    function showToast(message) {
-      let toast = document.getElementById('toast');
-      if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        toast.className = 'toast';
-        document.body.appendChild(toast);
-      }
-      toast.innerHTML = `✅ ${message}`;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2600);
+        if (recorder.state === 'recording') recorder.stop();
+      }, (totalDuration * 1000) + 200);
     }
   </script>
 </body>
