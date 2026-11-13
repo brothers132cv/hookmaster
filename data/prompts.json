@@ -1,98 +1,123 @@
 [
-  {
-    "id": 1,
-    "title": "Dark Luxury — Hypercar & Penthouse Night",
-    "niche": "wealth",
-    "aesthetic": "Dark Wealth",
-    "tools": ["Midjourney v6", "Kling AI", "Runway Gen-3"],
-    "previewImg": "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=600&q=80",
-    "prompt": "Cinematic 9:16 vertical video of a matte black Bugatti Chiron parked in front of a modern Beverly Hills glass mansion at night, subtle rain reflections on asphalt, hyperrealistic lighting, 8k resolution, photorealistic, anamorphic lens flare --ar 9:16 --v 6.0",
-    "motionParams": "Camera slowly dollies forward toward the front grille, headlights pulse with white LED glow, ultra smooth slow motion 60fps.",
-    "views": "3.8M",
-    "isPremium": false
-  },
-  {
-    "id": 2,
-    "title": "Cyberpunk Neon — Future Trading Terminal",
-    "niche": "business",
-    "aesthetic": "Cyber Tech",
-    "tools": ["Midjourney v6", "Luma Dream Machine"],
-    "previewImg": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80",
-    "prompt": "First-person POV typing on a transparent glowing holographic keyboard inside a futuristic Tokyo skyscraper, real-time crypto candlestick charts floating in 3D air, neon purple and cyan volumetric fog --ar 9:16",
-    "motionParams": "Fingers tap glowing keys with particle emission, camera slight handheld shake, data streams flow through the holographic display.",
-    "views": "5.2M",
-    "isPremium": false
-  },
-  {
-    "id": 3,
-    "title": "Hardcore Gym — Chalk Powder Explosion",
-    "niche": "fitness",
-    "aesthetic": "Gym Motivation",
-    "tools": ["Runway Gen-3 Alpha", "Kling AI"],
-    "previewImg": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80",
-    "prompt": "Extreme slow motion close-up of heavy muscular hands clapping gym chalk together, dramatic dust explosion in dark underground gym, high-contrast rim lighting, sweat droplets flying, cinematic 4k --ar 9:16",
-    "motionParams": "1000fps super slow motion, chalk particles expand outward toward lens, camera orbits 15 degrees around hands.",
-    "views": "4.9M",
-    "isPremium": false
-  },
-  {
-    "id": 4,
-    "title": "Aesthetic Skincare — Liquid Gold Serum Macro",
-    "niche": "beauty",
-    "aesthetic": "Aesthetic Glow",
-    "tools": ["Midjourney v6", "Haiper AI"],
-    "previewImg": "https://images.unsplash.com/photo-1608248597359-57e0f2b3802e?auto=format&fit=crop&w=600&q=80",
-    "prompt": "Macro slow motion shot of an amber glass dropper releasing a thick golden serum drop onto flawless glass skin, shimmering micro-pearl essence, soft studio daylight, clean minimal aesthetic --ar 9:16",
-    "motionParams": "Droplet hits skin in ultra slow-motion, ripples smoothly across the surface, soft focus pull.",
-    "views": "2.9M",
-    "isPremium": false
-  },
-  {
-    "id": 5,
-    "title": "Deep Space & Milky Way Time-Lapse",
-    "niche": "lifestyle",
-    "aesthetic": "Cinematic B-Roll",
-    "tools": ["Kling AI", "Midjourney v6"],
-    "previewImg": "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=600&q=80",
-    "prompt": "9:16 vertical time-lapse of the Milky Way galaxy rotating above misty pine mountains, lone campfire glowing warm orange in foreground, shooting star streaks across sky, photorealistic 8k --ar 9:16",
-    "motionParams": "Smooth upward camera tilt tracking galaxy rotation, fire smoke subtly rises, stars twinkle brightly.",
-    "views": "7.1M",
-    "isPremium": false
-  },
-  {
-    "id": 6,
-    "title": "Private Jet Office — Flying Over NYC",
-    "niche": "wealth",
-    "aesthetic": "Dark Wealth",
-    "tools": ["Runway Gen-3", "Midjourney v6"],
-    "previewImg": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=600&q=80",
-    "prompt": "POV inside a luxury private jet cabin at sunset, espresso cup and open MacBook Pro on mahogany table, Manhattan skyline visible through oval window below, warm golden hour sunbeams --ar 9:16",
-    "motionParams": "Gentle airplane vibration, clouds drift outside window, sunlight shifts as plane banks left.",
-    "views": "6.4M",
-    "isPremium": true
-  },
-  {
-    "id": 7,
-    "title": "Steaming Espresso Extraction Macro",
-    "niche": "food",
-    "aesthetic": "Satisfying Cooking",
-    "tools": ["Luma Dream Machine", "Midjourney v6"],
-    "previewImg": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
-    "prompt": "Extreme macro close-up of golden espresso crema pouring from bottomless portafilter into clear glass cup, rich viscous dark brown swirls, rising steam, dark café backdrop --ar 9:16",
-    "motionParams": "Crema layers swirl together, thick stream of espresso flows steadily in high framerate.",
-    "views": "3.5M",
-    "isPremium": true
-  },
-  {
-    "id": 8,
-    "title": "Neon Rain Puddle Reflection — Cyber Tokyo",
-    "niche": "general",
-    "aesthetic": "Suspense / Mystery",
-    "tools": ["Kling AI", "Runway Gen-3"],
-    "previewImg": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80",
-    "prompt": "Looking down into a clean rain puddle reflecting vibrant Japanese neon signs in Shibuya at night, a single raindrop falls causing concentric ripple rings, cinematic moody atmosphere --ar 9:16",
-    "motionParams": "Raindrop impacts water, ripple ripples outward distorting the neon reflection, camera pushes in.",
-    "views": "8.8M",
-    "isPremium": true
-  }
+    {
+        "id":  1,
+        "title":  "Dark Luxury — Hypercar \u0026 Penthouse Night",
+        "niche":  "wealth",
+        "aesthetic":  "Dark Wealth",
+        "tools":  [
+                      "Midjourney v6",
+                      "Kling AI",
+                      "Runway Gen-3"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "Cinematic 9:16 vertical video of a matte black Bugatti Chiron parked in front of a modern Beverly Hills glass mansion at night, subtle rain reflections on asphalt, hyperrealistic lighting, 8k resolution, photorealistic, anamorphic lens flare --ar 9:16 --v 6.0",
+        "motionParams":  "Camera slowly dollies forward toward the front grille, headlights pulse with white LED glow, ultra smooth slow motion 60fps.",
+        "views":  "3.8M",
+        "isPremium":  false
+    },
+    {
+        "id":  2,
+        "title":  "Cyberpunk Neon — Future Trading Terminal",
+        "niche":  "business",
+        "aesthetic":  "Cyber Tech",
+        "tools":  [
+                      "Midjourney v6",
+                      "Luma Dream Machine"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "First-person POV typing on a transparent glowing holographic keyboard inside a futuristic Tokyo skyscraper, real-time crypto candlestick charts floating in 3D air, neon purple and cyan volumetric fog --ar 9:16",
+        "motionParams":  "Fingers tap glowing keys with particle emission, camera slight handheld shake, data streams flow through the holographic display.",
+        "views":  "5.2M",
+        "isPremium":  false
+    },
+    {
+        "id":  3,
+        "title":  "Hardcore Gym — Chalk Powder Explosion",
+        "niche":  "fitness",
+        "aesthetic":  "Gym Motivation",
+        "tools":  [
+                      "Runway Gen-3 Alpha",
+                      "Kling AI"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "Extreme slow motion close-up of heavy muscular hands clapping gym chalk together, dramatic dust explosion in dark underground gym, high-contrast rim lighting, sweat droplets flying, cinematic 4k --ar 9:16",
+        "motionParams":  "1000fps super slow motion, chalk particles expand outward toward lens, camera orbits 15 degrees around hands.",
+        "views":  "4.9M",
+        "isPremium":  false
+    },
+    {
+        "id":  4,
+        "title":  "Aesthetic Skincare — Liquid Gold Serum Macro",
+        "niche":  "beauty",
+        "aesthetic":  "Aesthetic Glow",
+        "tools":  [
+                      "Midjourney v6",
+                      "Haiper AI"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1608248597359-57e0f2b3802e?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "Macro slow motion shot of an amber glass dropper releasing a thick golden serum drop onto flawless glass skin, shimmering micro-pearl essence, soft studio daylight, clean minimal aesthetic --ar 9:16",
+        "motionParams":  "Droplet hits skin in ultra slow-motion, ripples smoothly across the surface, soft focus pull.",
+        "views":  "2.9M",
+        "isPremium":  false
+    },
+    {
+        "id":  5,
+        "title":  "Deep Space \u0026 Milky Way Time-Lapse",
+        "niche":  "lifestyle",
+        "aesthetic":  "Cinematic B-Roll",
+        "tools":  [
+                      "Kling AI",
+                      "Midjourney v6"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "9:16 vertical time-lapse of the Milky Way galaxy rotating above misty pine mountains, lone campfire glowing warm orange in foreground, shooting star streaks across sky, photorealistic 8k --ar 9:16",
+        "motionParams":  "Smooth upward camera tilt tracking galaxy rotation, fire smoke subtly rises, stars twinkle brightly.",
+        "views":  "7.1M",
+        "isPremium":  false
+    },
+    {
+        "id":  6,
+        "title":  "Private Jet Office — Flying Over NYC",
+        "niche":  "wealth",
+        "aesthetic":  "Dark Wealth",
+        "tools":  [
+                      "Runway Gen-3",
+                      "Midjourney v6"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "POV inside a luxury private jet … [full prompt in the AI Prompts Pack]",
+        "motionParams":  "Gentle airplane vibration, clouds drift outside window, sunlight shifts as plane banks left.",
+        "views":  "6.4M",
+        "isPremium":  true
+    },
+    {
+        "id":  7,
+        "title":  "Steaming Espresso Extraction Macro",
+        "niche":  "food",
+        "aesthetic":  "Satisfying Cooking",
+        "tools":  [
+                      "Luma Dream Machine",
+                      "Midjourney v6"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "Extreme macro close-up of golden espresso … [full prompt in the AI Prompts Pack]",
+        "motionParams":  "Crema layers swirl together, thick stream of espresso flows steadily in high framerate.",
+        "views":  "3.5M",
+        "isPremium":  true
+    },
+    {
+        "id":  8,
+        "title":  "Neon Rain Puddle Reflection — Cyber Tokyo",
+        "niche":  "general",
+        "aesthetic":  "Suspense / Mystery",
+        "tools":  [
+                      "Kling AI",
+                      "Runway Gen-3"
+                  ],
+        "previewImg":  "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+        "prompt":  "Looking down into a clean rain … [full prompt in the AI Prompts Pack]",
+        "motionParams":  "Raindrop impacts water, ripple ripples outward distorting the neon reflection, camera pushes in.",
+        "views":  "8.8M",
+        "isPremium":  true
+    }
 ]

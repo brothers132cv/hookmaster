@@ -1,148 +1,196 @@
 /* ============================================
    HookMaster — Core JavaScript
-   Video Hooks Vault + Ad-Monetized Download Flow
-   Native US English Version
    ============================================ */
 
-document.addEventListener('DOMContentLoaded', () => {
-  initApp();
-});
+/* ---------- EDIT THESE: paste your real links ---------- */
+const STORE_LINKS = {
+  bundle: '',   // e.g. 'https://hookmaster.gumroad.com/l/all-access'
+  prompts: '',  // e.g. 'https://hookmaster.gumroad.com/l/ai-prompts'
+  vault: ''     // e.g. 'https://hookmaster.gumroad.com/l/4k-vault'
+};
+const SOCIAL_LINKS = {
+  tiktok: '',    // 'https://www.tiktok.com/@yourhandle'
+  instagram: '', // 'https://www.instagram.com/yourhandle'
+  youtube: ''    // 'https://www.youtube.com/@yourhandle'
+};
+// Email list: paste a form endpoint (Formspree / Kit / Beehiiv embed URL).
+// Also add its domain to the CSP "form-action" + "connect-src" in each page <head>.
+const EMAIL_ENDPOINT = '';
+/* ------------------------------------------------------- */
+
+document.addEventListener('DOMContentLoaded', initApp);
 
 function esc(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 let allHooks = [];
+let allPrompts = [];
 let activeNiche = 'all';
-let activeCategory = 'all';
 let searchQuery = '';
-let currentDownloadHook = null;
-let countdownTimer = null;
+let selectedTool = 'all';
+let selectedAesthetic = 'all';
 
 async function initApp() {
-  try {
-    const response = await fetch('data/hooks.json');
-    allHooks = await response.json();
-  } catch (e) {
-    console.log('Loading embedded hooks dataset...');
-    allHooks = getEmbeddedHooks();
+  setupNav();
+  setupBuyLinks();
+  setupSocialLinks();
+  setupEmailForms();
+  setupScrollTop();
+
+  if (document.getElementById('video-hooks-grid') || document.getElementById('featured-video-hooks')) {
+    allHooks = await loadJSON('data/hooks.json');
+    if (document.getElementById('video-hooks-grid')) {
+      const niche = new URLSearchParams(location.search).get('niche');
+      if (niche) {
+        activeNiche = niche;
+        document.querySelectorAll('.filter-btn[data-niche]').forEach(b => b.classList.toggle('active', b.dataset.niche === niche));
+      }
+      filterAndRenderHooks();
+      setupHookFilters();
+    }
+    if (document.getElementById('featured-video-hooks')) {
+      renderHookGrid('featured-video-hooks', allHooks.slice(0, 6));
+    }
   }
 
-  // Hook up hooks page if present
-  if (document.getElementById('video-hooks-grid')) {
-    renderVideoHooks(allHooks);
-    setupSearch();
-    setupFilters();
+  if (document.getElementById('prompts-grid')) {
+    allPrompts = await loadJSON('data/prompts.json');
+    const tool = new URLSearchParams(location.search).get('tool');
+    if (tool) {
+      selectedTool = tool;
+      document.querySelectorAll('.filter-btn[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === tool));
+    }
+    filterPrompts();
+    setupPromptFilters();
   }
-
-  // Hook up home page featured hooks
-  if (document.getElementById('featured-video-hooks')) {
-    renderFeaturedVideoHooks();
-  }
-
-  setupMobileMenu();
-  setupScrollEffects();
-  setupEmailPopup();
-  setupDownloadModal();
 }
 
-/* =========================================================
-   RENDER VIDEO HOOKS (VERTICAL 9:16 CARDS)
-   ========================================================= */
-function renderVideoHooks(hooks) {
-  const grid = document.getElementById('video-hooks-grid');
-  if (!grid) return;
-
-  const countEl = document.getElementById('hooks-count');
-  if (countEl) {
-    countEl.innerHTML = `Showing <span>${hooks.length}</span> viral video hooks`;
+async function loadJSON(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(res.status);
+    return await res.json();
+  } catch (e) {
+    console.warn('Could not load', url, e);
+    return [];
   }
+}
 
-  if (hooks.length === 0) {
-    grid.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-muted);">
-        <div style="font-size: 3rem; margin-bottom: 12px;">🎬</div>
-        <h3>No video hooks found</h3>
-        <p>Try searching another keyword or clear your niche filters.</p>
-      </div>
-    `;
+/* ---------- NAV / LINKS ---------- */
+function setupNav() {
+  const page = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('#navbar-links a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === page);
+  });
+  const btn = document.getElementById('mobile-menu-btn');
+  const links = document.getElementById('navbar-links');
+  if (btn && links) {
+    btn.addEventListener('click', () => {
+      links.classList.toggle('open');
+      btn.textContent = links.classList.contains('open') ? '✕' : '☰';
+    });
+  }
+}
+
+function setupBuyLinks() {
+  document.querySelectorAll('[data-buy]').forEach(el => {
+    const url = STORE_LINKS[el.dataset.buy];
+    if (url) {
+      el.href = url;
+      el.target = '_blank';
+      el.rel = 'noopener';
+    } else if (location.pathname.endsWith('shop.html')) {
+      el.addEventListener('click', e => {
+        e.preventDefault();
+        showToast('Checkout opens soon — join the email list to get launch pricing.');
+      });
+    }
+  });
+}
+
+function setupSocialLinks() {
+  document.querySelectorAll('[data-social]').forEach(el => {
+    const url = SOCIAL_LINKS[el.dataset.social];
+    if (url) { el.href = url; el.target = '_blank'; el.rel = 'noopener'; }
+    else el.closest('li')?.remove();
+  });
+}
+
+function setupEmailForms() {
+  document.querySelectorAll('.email-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const input = form.querySelector('input[type="email"]');
+      if (!EMAIL_ENDPOINT) {
+        showToast('Email list launching soon — thanks!');
+        return;
+      }
+      try {
+        const res = await fetch(EMAIL_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new FormData(form)
+        });
+        if (!res.ok) throw new Error(res.status);
+        showToast("You're in! Check your inbox.");
+        input.value = '';
+      } catch (err) {
+        showToast('Something went wrong. Please try again.');
+      }
+    });
+  });
+}
+
+function setupScrollTop() {
+  const btn = document.getElementById('scroll-top');
+  if (!btn) return;
+  window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 400), { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+
+/* ---------- HOOKS ---------- */
+function renderHookGrid(id, hooks) {
+  const grid = document.getElementById(id);
+  if (!grid) return;
+  if (!hooks.length) {
+    grid.innerHTML = `<div class="empty-state"><h3>No hooks found</h3><p>Try another keyword or niche.</p></div>`;
     return;
   }
-
-  grid.innerHTML = hooks.map(hook => createVideoHookCard(hook)).join('');
-  attachVideoPreviewListeners();
+  grid.innerHTML = hooks.map(createHookCard).join('');
+  attachPreviewListeners(grid);
 }
 
-function renderFeaturedVideoHooks() {
-  const container = document.getElementById('featured-video-hooks');
-  if (!container) return;
-
-  const featured = allHooks.slice(0, 6);
-  container.innerHTML = featured.map(hook => createVideoHookCard(hook)).join('');
-  attachVideoPreviewListeners();
-}
-
-function createVideoHookCard(hook) {
+function createHookCard(hook) {
   return `
     <div class="video-hook-card" data-id="${Number(hook.id)}">
       <div class="video-preview-wrapper" onclick="toggleVideoPlayback(this)">
-        <video 
-          src="${esc(hook.videoSample)}" 
-          poster="" 
-          preload="metadata" 
-          muted 
-          loop 
-          playsinline
-          style="background: #0f172a;"
-        ></video>
+        <video src="${esc(hook.videoSample)}" preload="metadata" muted loop playsinline style="background:#0f172a;"></video>
         <div class="video-overlay-gradient"></div>
-        
         <div class="video-top-badges">
-          <span class="badge badge-resolution">HD 1080p</span>
+          <span class="badge badge-resolution">1080p</span>
           <span class="badge badge-niche">${esc(hook.duration || '4s')}</span>
         </div>
-
         <div class="video-play-btn">▶</div>
-
-        <div class="video-hook-caption">
-          <div class="caption-text">"${esc(hook.hook)}"</div>
-        </div>
+        <div class="video-hook-caption"><div class="caption-text">"${esc(hook.hook)}"</div></div>
       </div>
-
       <div class="video-card-body">
-        <div class="video-meta-tags">
-          <span class="badge badge-niche">${esc(hook.niche)}</span>
-          <span class="badge badge-category">${esc(hook.category)}</span>
-          <span class="badge badge-views">🔥 ${esc(hook.views)} views</span>
-        </div>
-
+        <div class="video-meta-tags"><span class="badge badge-niche">${esc(hook.niche)}</span></div>
         <div class="video-card-actions">
-          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyHookCaption(this.dataset.copy)">
-            📋 Copy Text
-          </button>
-          <button class="btn btn-download btn-sm" onclick="openDownloadModal(${hook.id})">
-            ⬇ Download Video
-          </button>
+          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyText(this.dataset.copy, 'Hook text copied!')">📋 Copy Text</button>
+          <button class="btn btn-download btn-sm" onclick="downloadHook(${Number(hook.id)})">⬇ Download</button>
         </div>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
-/* =========================================================
-   VIDEO HOVER / PREVIEW CONTROLS
-   ========================================================= */
-function attachVideoPreviewListeners() {
-  document.querySelectorAll('.video-preview-wrapper').forEach(wrapper => {
+function attachPreviewListeners(scope) {
+  scope.querySelectorAll('.video-preview-wrapper').forEach(wrapper => {
     const video = wrapper.querySelector('video');
     const playBtn = wrapper.querySelector('.video-play-btn');
-
     wrapper.addEventListener('mouseenter', () => {
-      video.play().then(() => {
-        playBtn.style.opacity = '0';
-      }).catch(() => {});
+      video.play().then(() => { playBtn.style.opacity = '0'; }).catch(() => {});
     });
-
     wrapper.addEventListener('mouseleave', () => {
       video.pause();
       video.currentTime = 0;
@@ -154,364 +202,151 @@ function attachVideoPreviewListeners() {
 function toggleVideoPlayback(wrapper) {
   const video = wrapper.querySelector('video');
   const playBtn = wrapper.querySelector('.video-play-btn');
-  if (video.paused) {
-    video.play();
-    playBtn.style.opacity = '0';
-  } else {
-    video.pause();
-    playBtn.style.opacity = '1';
-  }
+  if (video.paused) { video.play().catch(() => {}); playBtn.style.opacity = '0'; }
+  else { video.pause(); playBtn.style.opacity = '1'; }
 }
 
-/* =========================================================
-   AD-SUPPORTED DOWNLOAD MODAL (MONETIZATION SYSTEM)
-   ========================================================= */
-function setupDownloadModal() {
-  if (!document.getElementById('download-ad-modal')) {
-    const modalHtml = `
-      <div class="modal-overlay" id="download-ad-modal">
-        <div class="download-modal">
-          <button class="modal-close" onclick="closeDownloadModal()">✕</button>
-          
-          <div style="font-size: 2.2rem; margin-bottom: 6px;">🎬</div>
-          <h3 id="modal-hook-title" style="font-size: 1.25rem; font-weight: 800; margin-bottom: 6px;">Preparing Your Viral Video Hook</h3>
-          <p style="color: var(--text-secondary); font-size: 0.88rem;">Full HD 1080x1920 (9:16 Vertical Reel Format)</p>
-
-          <!-- 5-Second Countdown Box -->
-          <div class="countdown-box" id="countdown-wrapper">
-            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">Your free download will be ready in:</div>
-            <div class="countdown-number" id="countdown-timer">5</div>
-            <div style="font-size: 0.78rem; color: var(--text-muted);">Generating uncompressed 1080p MP4 file...</div>
-            <div class="countdown-progress-bar">
-              <div class="countdown-progress-fill" id="countdown-fill" style="width: 100%;"></div>
-            </div>
-          </div>
-
-          <!-- ============================================== -->
-          <!-- AD SPACE (MONETIZATION CONTAINER) -->
-          <!-- Replace content below with AdSense/Affiliate -->
-          <!-- ============================================== -->
-          <div class="ad-slot-container">
-            <span class="ad-badge">Sponsored</span>
-            <div class="ad-content-box">
-              <h4>🔥 CapCut Pro & AI Video Generator</h4>
-              <p>Turn any script or hook into a 1M+ view Reel in under 60 seconds with AI b-roll.</p>
-              <a href="https://gumroad.com" target="_blank" class="btn-ad">Claim 50% Off ↗</a>
-            </div>
-          </div>
-
-          <!-- Download Action Button -->
-          <div id="modal-download-action" style="margin-top: 14px;">
-            <button class="btn btn-secondary btn-lg" id="btn-final-download" disabled style="width: 100%; opacity: 0.5; cursor: not-allowed;">
-              ⏳ Please wait 5 seconds...
-            </button>
-          </div>
-
-          <!-- Upsell to Gumroad Bundle -->
-          <div class="modal-upsell-note">
-            ⚡ Tired of waiting 5s per video? <br>
-            <a href="shop.html" target="_blank">Get Instant 1-Click Access to All 500+ 4K Hooks (No Ads) on Gumroad →</a>
-          </div>
-        </div>
-      </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-  }
-}
-
-function openDownloadModal(hookId) {
-  // GATED DOWNLOAD: Visitors must sign in to download hooks (builds your email list!)
+function downloadHook(hookId) {
+  // Optional gate: only active once Firebase is configured in js/auth.js
   if (typeof HookAuth !== 'undefined' && typeof AUTH_CONFIGURED !== 'undefined' && AUTH_CONFIGURED && !HookAuth.isLoggedIn) {
     HookAuth.openModal();
-    const modalSubtitle = document.querySelector('#auth-modal p');
-    if (modalSubtitle) {
-      modalSubtitle.innerHTML = '🔒 <strong style="color: #ec4899;">Free member sign-in required.</strong> Sign in with Google or Email to unlock 1080p downloads.';
-    }
-    showToast('Please sign in to download hooks.');
+    showToast('Sign in (free) to download.');
     return;
   }
-
-  const hook = allHooks.find(h => h.id === hookId) || allHooks[0];
-  currentDownloadHook = hook;
-
-  setupDownloadModal();
-  const modal = document.getElementById('download-ad-modal');
-  const titleEl = document.getElementById('modal-hook-title');
-  const timerEl = document.getElementById('countdown-timer');
-  const fillEl = document.getElementById('countdown-fill');
-  const actionBtn = document.getElementById('btn-final-download');
-
-  if (titleEl) titleEl.innerText = `"${hook.hook}"`;
-  
-  let timeLeft = 5;
-  if (timerEl) timerEl.innerText = timeLeft;
-  if (fillEl) fillEl.style.width = '100%';
-  
-  actionBtn.disabled = true;
-  actionBtn.className = 'btn btn-secondary btn-lg';
-  actionBtn.style.opacity = '0.5';
-  actionBtn.style.cursor = 'not-allowed';
-  actionBtn.innerHTML = `⏳ Download link ready in ${timeLeft}s...`;
-
-  modal.classList.add('active');
-
-  if (countdownTimer) clearInterval(countdownTimer);
-
-  countdownTimer = setInterval(() => {
-    timeLeft--;
-    if (timerEl) timerEl.innerText = timeLeft;
-    if (fillEl) fillEl.style.width = `${(timeLeft / 5) * 100}%`;
-    if (actionBtn) actionBtn.innerHTML = `⏳ Download link ready in ${timeLeft}s...`;
-
-    if (timeLeft <= 0) {
-      clearInterval(countdownTimer);
-      if (timerEl) timerEl.innerText = '✅ Ready!';
-      if (fillEl) fillEl.style.width = '0%';
-
-      actionBtn.disabled = false;
-      actionBtn.className = 'btn btn-download btn-lg';
-      actionBtn.style.opacity = '1';
-      actionBtn.style.cursor = 'pointer';
-      actionBtn.innerHTML = `📥 Download 1080p MP4 Free`;
-      actionBtn.onclick = () => {
-        triggerVideoDownload(currentDownloadHook);
-      };
-    }
-  }, 1000);
-}
-
-function closeDownloadModal() {
-  const modal = document.getElementById('download-ad-modal');
-  if (modal) modal.classList.remove('active');
-  if (countdownTimer) clearInterval(countdownTimer);
-}
-
-function triggerVideoDownload(hook) {
-  showToast(`Downloading "${hook.hook.substring(0, 24)}..."`);
-  
+  const hook = allHooks.find(h => h.id === hookId);
+  if (!hook) return;
   const a = document.createElement('a');
   a.href = hook.videoSample;
-  a.download = `HookMaster_${hook.niche}_${hook.id}.mp4`;
+  a.download = `HookMaster_${String(hook.niche).replace(/[^a-z0-9_-]/gi, '')}_${Number(hook.id)}.mp4`;
   a.target = '_blank';
+  a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
-
-  setTimeout(() => {
-    closeDownloadModal();
-  }, 1200);
+  a.remove();
+  showUpsellToast();
 }
 
-/* =========================================================
-   SEARCH & FILTERS
-   ========================================================= */
-function setupSearch() {
+function showUpsellToast() {
+  showToast('Downloading… Want 4K + hundreds more? <a href="shop.html#bundle">See All Access →</a>', true);
+}
+
+function setupHookFilters() {
   const input = document.getElementById('search-input');
-  if (!input) return;
-
-  input.addEventListener('input', (e) => {
-    searchQuery = e.target.value.toLowerCase();
-    filterAndRenderVideoHooks();
-  });
-}
-
-function setupFilters() {
+  if (input) {
+    input.addEventListener('input', e => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      filterAndRenderHooks();
+    });
+  }
   document.querySelectorAll('.filter-btn[data-niche]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn[data-niche]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeNiche = btn.dataset.niche;
-      filterAndRenderVideoHooks();
-    });
-  });
-
-  document.querySelectorAll('.filter-btn[data-category]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn[data-category]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCategory = btn.dataset.category;
-      filterAndRenderVideoHooks();
+      filterAndRenderHooks();
     });
   });
 }
 
-function filterAndRenderVideoHooks() {
-  let filtered = allHooks;
-
-  if (activeNiche !== 'all') {
-    filtered = filtered.filter(h => h.niche === activeNiche);
-  }
-
-  if (activeCategory !== 'all') {
-    filtered = filtered.filter(h => h.category === activeCategory);
-  }
-
+function filterAndRenderHooks() {
+  let list = allHooks;
+  if (activeNiche !== 'all') list = list.filter(h => h.niche === activeNiche);
   if (searchQuery) {
-    filtered = filtered.filter(h =>
-      h.hook.toLowerCase().includes(searchQuery) ||
-      h.niche.toLowerCase().includes(searchQuery) ||
-      (h.category && h.category.toLowerCase().includes(searchQuery))
-    );
+    list = list.filter(h => [h.hook, h.niche, h.category].some(v => String(v || '').toLowerCase().includes(searchQuery)));
   }
-
-  renderVideoHooks(filtered);
+  const countEl = document.getElementById('hooks-count');
+  if (countEl) countEl.innerHTML = `Showing <span>${list.length}</span> free hooks`;
+  renderHookGrid('video-hooks-grid', list);
 }
 
-/* =========================================================
-   UTILITIES
-   ========================================================= */
-function copyHookCaption(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('Hook text copied to clipboard!');
-  }).catch(() => {
-    showToast('Hook text copied to clipboard!');
-  });
+/* ---------- AI PROMPTS ---------- */
+function renderPrompts(prompts) {
+  const grid = document.getElementById('prompts-grid');
+  const countEl = document.getElementById('prompts-count');
+  if (countEl) countEl.innerHTML = `Showing <span>${prompts.length}</span> AI prompts`;
+  if (!prompts.length) {
+    grid.innerHTML = `<div class="empty-state">No prompts found.</div>`;
+    return;
+  }
+  grid.innerHTML = prompts.map(p => {
+    const locked = !!p.isPremium;
+    const tools = (p.tools || []).map(t => `<span class="badge badge-niche" style="font-size:0.7rem;padding:3px 8px;">${esc(t)}</span>`).join('');
+    return `
+      <div class="prompt-card">
+        <div class="prompt-thumb-wrapper">
+          <img src="${esc(p.previewImg)}" alt="${esc(p.title)}" loading="lazy">
+          <div style="position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="badge badge-resolution">${esc(p.aesthetic)}</span>
+            ${locked ? '<span class="badge badge-category">👑 PRO</span>' : '<span class="badge badge-views">FREE</span>'}
+          </div>
+        </div>
+        <div class="prompt-card-body">
+          <h3 style="font-size:1.15rem;font-weight:800;margin-bottom:6px;color:#fff;">${esc(p.title)}</h3>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">${tools}</div>
+          <div style="position:relative;">
+            <div class="prompt-box ${locked ? 'locked-blur' : ''}">${esc(p.prompt)}</div>
+            ${locked ? `
+              <div class="locked-badge-overlay">
+                <div style="font-size:1.6rem;">🔒</div>
+                <div style="font-size:0.95rem;font-weight:800;color:#fff;">Pro prompt</div>
+                <div style="font-size:0.78rem;color:#cbd5e1;margin-bottom:10px;">In the AI Prompts Pack</div>
+              </div>` : ''}
+          </div>
+          <div style="margin-bottom:14px;font-size:0.82rem;color:var(--text-secondary);">
+            <span style="font-weight:700;color:var(--accent-cyan);">🎥 Camera:</span> ${esc(p.motionParams)}
+          </div>
+          <div style="margin-top:auto;">
+            ${locked
+              ? `<a href="shop.html#prompts" data-buy="prompts" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">Unlock 1,000+ prompts — $19</a>`
+              : `<button class="btn btn-primary btn-sm" data-copy="${esc(p.prompt)}" onclick="copyText(this.dataset.copy, 'Prompt copied!')" style="width:100%;justify-content:center;">📋 Copy Prompt</button>`}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  setupBuyLinks();
 }
 
-function showToast(message) {
+function setupPromptFilters() {
+  const bind = (attr, setter) => {
+    document.querySelectorAll(`.filter-btn[data-${attr}]`).forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll(`.filter-btn[data-${attr}]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setter(btn.dataset[attr]);
+        filterPrompts();
+      });
+    });
+  };
+  bind('tool', v => { selectedTool = v; });
+  bind('aesthetic', v => { selectedAesthetic = v; });
+}
+
+function filterPrompts() {
+  let list = allPrompts;
+  if (selectedTool !== 'all') list = list.filter(p => (p.tools || []).includes(selectedTool));
+  if (selectedAesthetic !== 'all') list = list.filter(p => p.aesthetic === selectedAesthetic);
+  renderPrompts(list);
+}
+
+/* ---------- UTILITIES ---------- */
+function copyText(text, msg) {
+  navigator.clipboard.writeText(text)
+    .then(() => showToast(msg || 'Copied!'))
+    .catch(() => showToast('Copy failed — select and copy manually.'));
+}
+
+// allowHTML only for trusted, hardcoded strings
+function showToast(message, allowHTML = false) {
   let toast = document.getElementById('toast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'toast';
     toast.className = 'toast';
+    toast.setAttribute('role', 'status');
     document.body.appendChild(toast);
   }
-  toast.innerHTML = `✅ ${message}`;
+  if (allowHTML) toast.innerHTML = message; else toast.textContent = message;
   toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2600);
-}
-
-function setupMobileMenu() {
-  const btn = document.getElementById('mobile-menu-btn');
-  const links = document.getElementById('navbar-links');
-  if (!btn || !links) return;
-
-  btn.addEventListener('click', () => {
-    links.classList.toggle('open');
-    btn.textContent = links.classList.contains('open') ? '✕' : '☰';
-  });
-}
-
-function setupScrollEffects() {
-  const scrollTopBtn = document.getElementById('scroll-top');
-  window.addEventListener('scroll', () => {
-    if (scrollTopBtn) {
-      if (window.scrollY > 400) {
-        scrollTopBtn.classList.add('visible');
-      } else {
-        scrollTopBtn.classList.remove('visible');
-      }
-    }
-  });
-
-  if (scrollTopBtn) {
-    scrollTopBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-}
-
-function setupEmailPopup() {
-  const modal = document.getElementById('email-modal');
-  if (!modal) return;
-
-  let popupShown = sessionStorage.getItem('popupShown');
-  if (!popupShown) {
-    setTimeout(() => {
-      if (!sessionStorage.getItem('popupShown')) {
-        modal.classList.add('active');
-        sessionStorage.setItem('popupShown', 'true');
-      }
-    }, 28000);
-  }
-
-  const closeBtn = modal.querySelector('.modal-close');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-  }
-}
-
-function handleEmailSubmit(event, formId) {
-  event.preventDefault();
-  const form = document.getElementById(formId);
-  if (!form) return;
-  const input = form.querySelector('input[type="email"]');
-  showToast("🎉 You're in! Check your inbox for your 20 secret bonus video hooks.");
-  input.value = '';
-  const modal = document.getElementById('email-modal');
-  if (modal) modal.classList.remove('active');
-}
-
-/* =========================================================
-   EMBEDDED VIDEO HOOKS DATASET (FALLBACK)
-   ========================================================= */
-function getEmbeddedHooks() {
-  return [
-    {
-      id: 1,
-      hook: "Stop scrolling if you want your Reels to blow up",
-      niche: "business",
-      category: "Luxury Aesthetic",
-      duration: "4s",
-      resolution: "1080x1920",
-      views: "2.4M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4"
-    },
-    {
-      id: 2,
-      hook: "I made $10,000 in 30 days using this 1 secret",
-      niche: "finance",
-      category: "Dark Wealth",
-      duration: "3s",
-      resolution: "1080x1920",
-      views: "5.1M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #064e3b",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-counting-money-bills-42653-large.mp4"
-    },
-    {
-      id: 3,
-      hook: "Stop doing regular crunches. Do this instead",
-      niche: "fitness",
-      category: "Gym Motivation",
-      duration: "5s",
-      resolution: "1080x1920",
-      views: "4.2M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #7f1d1d",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-weights-in-a-gym-41584-large.mp4"
-    },
-    {
-      id: 4,
-      hook: "POV: You finally cracked the Instagram algorithm",
-      niche: "general",
-      category: "Cinematic B-Roll",
-      duration: "4s",
-      resolution: "1080x1920",
-      views: "8.7M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #312e81",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-night-sky-with-stars-at-a-calm-lake-time-lapse-42531-large.mp4"
-    },
-    {
-      id: 5,
-      hook: "This $10 skincare product replaced my entire $200 routine",
-      niche: "beauty",
-      category: "Aesthetic Glow",
-      duration: "3s",
-      resolution: "1080x1920",
-      views: "3.8M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #831843",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-skincare-routine-with-cream-43542-large.mp4"
-    },
-    {
-      id: 6,
-      hook: "Gordon Ramsay would cry if he saw this 5-minute hack",
-      niche: "food",
-      category: "Satisfying Cooking",
-      duration: "4s",
-      resolution: "1080x1920",
-      views: "6.3M",
-      bgGradient: "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #78350f",
-      videoSample: "https://assets.mixkit.co/videos/preview/mixkit-chef-garnishing-a-plate-42284-large.mp4"
-    }
-  ];
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), allowHTML ? 5000 : 2600);
 }
