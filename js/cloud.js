@@ -6,7 +6,7 @@
    ========================================================= */
 
 const CLOUD_CONFIG = {
-  WORKER_BASE: '',                       // e.g. https://hookmaster-media.YOURNAME.workers.dev
+  WORKER_BASE: 'https://hookmaster-media.trunghieuhvtc.workers.dev',
   ADMIN_EMAIL: 'trunghieuhvtc@gmail.com' // UI hint only; real enforcement = rules + worker
 };
 
