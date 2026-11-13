@@ -1,0 +1,6 @@
+local-admin/
+videos-raw/
+.env
+*.log
+Thumbs.db
+.DS_Store

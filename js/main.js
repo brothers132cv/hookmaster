@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 let allHooks = [];
 let activeNiche = 'all';
 let activeCategory = 'all';
@@ -80,40 +84,40 @@ function renderFeaturedVideoHooks() {
 
 function createVideoHookCard(hook) {
   return `
-    <div class="video-hook-card" data-id="${hook.id}">
+    <div class="video-hook-card" data-id="${Number(hook.id)}">
       <div class="video-preview-wrapper" onclick="toggleVideoPlayback(this)">
         <video 
-          src="${hook.videoSample}" 
+          src="${esc(hook.videoSample)}" 
           poster="" 
           preload="metadata" 
           muted 
           loop 
           playsinline
-          style="background: ${hook.bgGradient || '#0f172a'};"
+          style="background: #0f172a;"
         ></video>
         <div class="video-overlay-gradient"></div>
         
         <div class="video-top-badges">
           <span class="badge badge-resolution">HD 1080p</span>
-          <span class="badge badge-niche">${hook.duration || '4s'}</span>
+          <span class="badge badge-niche">${esc(hook.duration || '4s')}</span>
         </div>
 
         <div class="video-play-btn">▶</div>
 
         <div class="video-hook-caption">
-          <div class="caption-text">"${hook.hook}"</div>
+          <div class="caption-text">"${esc(hook.hook)}"</div>
         </div>
       </div>
 
       <div class="video-card-body">
         <div class="video-meta-tags">
-          <span class="badge badge-niche">${hook.niche}</span>
-          <span class="badge badge-category">${hook.category}</span>
-          <span class="badge badge-views">🔥 ${hook.views} views</span>
+          <span class="badge badge-niche">${esc(hook.niche)}</span>
+          <span class="badge badge-category">${esc(hook.category)}</span>
+          <span class="badge badge-views">🔥 ${esc(hook.views)} views</span>
         </div>
 
         <div class="video-card-actions">
-          <button class="btn btn-secondary btn-sm" onclick="copyHookCaption('${hook.hook.replace(/'/g, "\\'")}')">
+          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyHookCaption(this.dataset.copy)">
             📋 Copy Text
           </button>
           <button class="btn btn-download btn-sm" onclick="openDownloadModal(${hook.id})">
@@ -216,6 +220,17 @@ function setupDownloadModal() {
 }
 
 function openDownloadModal(hookId) {
+  // GATED DOWNLOAD: Visitors must sign in to download hooks (builds your email list!)
+  if (typeof HookAuth !== 'undefined' && typeof AUTH_CONFIGURED !== 'undefined' && AUTH_CONFIGURED && !HookAuth.isLoggedIn) {
+    HookAuth.openModal();
+    const modalSubtitle = document.querySelector('#auth-modal p');
+    if (modalSubtitle) {
+      modalSubtitle.innerHTML = '🔒 <strong style="color: #ec4899;">Free member sign-in required.</strong> Sign in with Google or Email to unlock 1080p downloads.';
+    }
+    showToast('Please sign in to download hooks.');
+    return;
+  }
+
   const hook = allHooks.find(h => h.id === hookId) || allHooks[0];
   currentDownloadHook = hook;
 
