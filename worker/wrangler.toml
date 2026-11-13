@@ -7,6 +7,6 @@ binding = "MEDIA"
 bucket_name = "hookmaster-media"
 
 [vars]
-FIREBASE_PROJECT_ID = ""            # <- your Firebase project id
+FIREBASE_PROJECT_ID = "hookmaster-guru"
 ADMIN_EMAIL = "trunghieuhvtc@gmail.com"
 ALLOWED_ORIGINS = "https://hookmaster.guru,https://www.hookmaster.guru,http://localhost:8080"

@@ -7,10 +7,12 @@
    ========================================================= */
 
 const FIREBASE_CONFIG = {
-  apiKey: '',          // Firebase Console > Project settings > Your apps
-  authDomain: '',      // e.g. hookmaster-xxxx.firebaseapp.com
-  projectId: '',
-  appId: ''
+  apiKey: 'AIzaSyA7lOc-2Gd8yhYMJwaDuofw7YcL-yejBBU',
+  authDomain: 'hookmaster-guru.firebaseapp.com',
+  projectId: 'hookmaster-guru',
+  storageBucket: 'hookmaster-guru.firebasestorage.app',
+  messagingSenderId: '194510476130',
+  appId: '1:194510476130:web:917b559790b0a6de67123b'
 };
 const AUTH_CONFIGURED = Boolean(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 const FB_VERSION = '10.12.2';
