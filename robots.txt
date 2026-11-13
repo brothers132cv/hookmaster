@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://hookmaster.guru/sitemap.xml
+Disallow: /admin.html

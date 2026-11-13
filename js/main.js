@@ -39,7 +39,11 @@ async function initApp() {
   setupScrollTop();
 
   if (document.getElementById('video-hooks-grid') || document.getElementById('featured-video-hooks')) {
-    allHooks = await loadJSON('data/hooks.json');
+    const [staticHooks, cloudHooks] = await Promise.all([
+      loadJSON('data/hooks.json'),
+      (typeof Cloud !== 'undefined' ? Cloud.fetchHooks() : Promise.resolve([]))
+    ]);
+    allHooks = [...cloudHooks, ...staticHooks]; // newest staff uploads first
     if (document.getElementById('video-hooks-grid')) {
       const niche = new URLSearchParams(location.search).get('niche');
       if (niche) {

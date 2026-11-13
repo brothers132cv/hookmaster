@@ -28,6 +28,20 @@ function loadScript(src) {
   });
 }
 
+let _fbPromise = null;
+function loadFirebase() {
+  if (!AUTH_CONFIGURED) return Promise.reject(new Error('Firebase not configured'));
+  if (!_fbPromise) _fbPromise = (async () => {
+    const base = `https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
+    await loadScript(base + 'firebase-app-compat.js');
+    await loadScript(base + 'firebase-auth-compat.js');
+    await loadScript(base + 'firebase-firestore-compat.js');
+    if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    return firebase;
+  })();
+  return _fbPromise;
+}
+
 const HookAuth = {
   currentUser: null,
   isLoggedIn: false,
@@ -37,13 +51,10 @@ const HookAuth = {
     this.updateNavbar();
     if (!AUTH_CONFIGURED) return;
     try {
-      const base = `https://www.gstatic.com/firebasejs/${FB_VERSION}/`;
-      await loadScript(base + 'firebase-app-compat.js');
-      await loadScript(base + 'firebase-auth-compat.js');
-      firebase.initializeApp(FIREBASE_CONFIG);
+      await loadFirebase();
       this.fb = firebase.auth();
       this.fb.onAuthStateChanged(user => {
-        this.currentUser = user ? { email: user.email, name: user.displayName || (user.email || 'User').split('@')[0] } : null;
+        this.currentUser = user ? { uid: user.uid, email: user.email, name: user.displayName || (user.email || 'User').split('@')[0] } : null;
         this.isLoggedIn = Boolean(user);
         this.updateNavbar();
       });

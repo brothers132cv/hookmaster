@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.workers.dev https://*.hookmaster.guru; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Dashboard — HookMaster</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+  <style>
+    body { padding: 90px 16px 60px; }
+    .wrap { max-width: 980px; margin: 0 auto; }
+    .panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 22px; margin-bottom: 22px; }
+    .panel h3 { margin-bottom: 14px; font-weight: 800; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
+    label { display: block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 12px 0 6px; }
+    textarea.search-input { padding: 10px 14px; font-family: inherit; line-height: 1.4; }
+    .row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .row video { width: 54px; height: 96px; object-fit: cover; border-radius: 8px; background: #000; }
+    .row .grow { flex: 1; min-width: 0; }
+    .muted { color: var(--text-muted); font-size: .85rem; }
+    .bar { height: 8px; background: rgba(255,255,255,.1); border-radius: 8px; overflow: hidden; margin-top: 8px; display: none; }
+    .bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#7440E4,#EC4899); }
+    .msg { margin-top: 12px; font-weight: 600; }
+    .ok { color: #4ade80; } .err { color: #f87171; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand"><img src="images/logo.jpg" alt="HookMaster" class="logo-img" width="36" height="36"><span>Hook<span class="gradient-text">Master</span></span></a>
+      <div class="navbar-cta"></div>
+    </div>
+  </nav>
+
+  <div class="wrap" id="app">
+    <div class="panel"><p class="muted" id="status">Loading…</p></div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/cloud.js"></script>
+  <script>
+  const $ = id => document.getElementById(id);
+  const app = $('app');
+  let role = null, editingId = null;
+
+  const DEFAULT_TEMPLATE = {
+    version: 1, aspect: '9:16', duration: 4,
+    tracks: {
+      video: [{ id: 'hook', type: 'hook', start: 0, end: 4 }, { id: 'slot1', type: 'user-footage', start: 4, end: 10, label: 'Your footage' }],
+      text:  [{ text: 'YOUR HOOK TEXT', start: 0.2, end: 3.8, style: 'bold-white-pill', x: 0.5, y: 0.25 }],
+      audio: [], transitions: [{ at: 4, type: 'fade', duration: 0.3 }]
+    }
+  };
+
+  async function boot() {
+    if (!AUTH_CONFIGURED) { $('status').textContent = 'Firebase is not configured yet. Paste your web config into js/auth.js.'; return; }
+    await loadFirebase();
+    firebase.auth().onAuthStateChanged(async user => {
+      if (!user) {
+        app.innerHTML = `<div class="panel" style="text-align:center"><h3>Staff sign-in</h3><p class="muted" style="margin-bottom:14px">Admin and VA accounts only.</p><button class="btn btn-primary" onclick="HookAuth.openModal()">Sign In</button></div>`;
+        return;
+      }
+      if (!user.emailVerified && !(user.providerData[0] || {}).providerId?.includes('google')) {
+        app.innerHTML = `<div class="panel"><p>Please verify your email first (use Google sign-in for instant access).</p></div>`; return;
+      }
+      role = await Cloud.getRole(user);
+      if (!role) { app.innerHTML = `<div class="panel"><h3>Access denied</h3><p class="muted">${esc(user.email)} is not a staff account. Ask the admin to add you.</p></div>`; return; }
+      render(user);
+    });
+  }
+
+  function render(user) {
+    app.innerHTML = `
+      <div class="panel">
+        <h3>Staff Dashboard <span class="muted">· ${esc(user.email)} (${role})</span></h3>
+        <p class="muted">Publish a video hook with its how-to guide and editor template.</p>
+      </div>
+      <div class="panel">
+        <h3 id="form-title">New hook</h3>
+        <form id="hook-form">
+          <label>Hook text (US English)</label>
+          <input class="search-input" id="f-hook" required maxlength="140" placeholder="Stop scrolling if you want your Reels to blow up">
+          <div class="grid2">
+            <div><label>Niche</label>
+              <select class="search-input" id="f-niche">
+                <option>business</option><option>finance</option><option>fitness</option><option>beauty</option><option>food</option><option>lifestyle</option><option>general</option>
+              </select></div>
+            <div><label>Category / vibe</label><input class="search-input" id="f-category" placeholder="Cinematic B-Roll"></div>
+            <div><label>Duration (seconds)</label><input class="search-input" id="f-duration" type="number" min="1" max="30" step="0.1" value="4"></div>
+            <div><label>Views label (optional)</label><input class="search-input" id="f-views" placeholder="2.4M"></div>
+          </div>
+          <label>Video file (9:16 MP4/WebM, max 150MB)</label>
+          <input class="search-input" id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime">
+          <label>…or existing video URL (optional)</label>
+          <input class="search-input" id="f-video-url" placeholder="https://…">
+          <label>How to use this hook (shown on the hook page)</label>
+          <textarea class="search-input" id="f-howto" rows="5" placeholder="1. Open the template&#10;2. Add your footage after the hook&#10;3. Keep your first line under 2 seconds…"></textarea>
+          <label>Best for (short description)</label>
+          <textarea class="search-input" id="f-desc" rows="2" placeholder="Great for business tips, growth hacks, and educational Reels."></textarea>
+          <label>Suggested caption / hashtags</label>
+          <textarea class="search-input" id="f-caption" rows="2" placeholder="#reels #growth #smallbusiness"></textarea>
+          <label>Editor template (JSON) — loaded when a viewer clicks “Edit”</label>
+          <textarea class="search-input" id="f-template" rows="12" spellcheck="false" style="font-family:monospace;font-size:.82rem"></textarea>
+          <label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:.9rem"><input type="checkbox" id="f-published" checked> Published (visible on the website)</label>
+          <div class="bar" id="bar"><i id="bar-i"></i></div>
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn btn-primary" type="submit" id="btn-save">Publish hook</button>
+            <button class="btn btn-secondary" type="button" onclick="resetForm()">Clear</button>
+          </div>
+          <div class="msg" id="msg"></div>
+        </form>
+      </div>
+      <div class="panel"><h3>Published hooks</h3><div id="list" class="muted">Loading…</div></div>
+      ${role === 'admin' ? `
+      <div class="panel"><h3>VA accounts</h3>
+        <p class="muted" style="margin-bottom:10px">VAs can post and edit hooks. They can’t manage staff.</p>
+        <form id="staff-form" style="display:flex;gap:10px;margin-bottom:12px"><input class="search-input" id="staff-email" type="email" required placeholder="va@example.com"><button class="btn btn-primary" type="submit">Add VA</button></form>
+        <div id="staff-list"></div>
+      </div>` : ''}`;
+    resetForm();
+    $('hook-form').addEventListener('submit', saveHook);
+    loadList();
+    if (role === 'admin') { $('staff-form').addEventListener('submit', addStaff); loadStaff(); }
+  }
+
+  function resetForm() {
+    editingId = null;
+    $('hook-form').reset();
+    $('form-title').textContent = 'New hook';
+    $('btn-save').textContent = 'Publish hook';
+    $('f-template').value = JSON.stringify(DEFAULT_TEMPLATE, null, 2);
+    $('f-published').checked = true;
+    $('msg').textContent = '';
+  }
+
+  function setMsg(t, cls) { const m = $('msg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
+
+  async function saveHook(e) {
+    e.preventDefault();
+    let template;
+    try { template = JSON.parse($('f-template').value); } catch (err) { return setMsg('Template JSON is invalid: ' + err.message, 'err'); }
+    const btn = $('btn-save'); btn.disabled = true;
+    try {
+      const db = await Cloud.db();
+      const existing = editingId ? (await db.collection('hooks').doc(String(editingId)).get()).data() : null;
+      let videoKey = existing?.videoKey || '';
+      const file = $('f-video').files[0];
+      if (file) {
+        $('bar').style.display = 'block'; setMsg('Uploading video…');
+        videoKey = await Cloud.upload(file, 'hooks', p => $('bar-i').style.width = Math.round(p * 100) + '%');
+      }
+      const videoUrl = $('f-video-url').value.trim() || (videoKey ? Cloud.mediaUrl(videoKey) : existing?.videoSample || '');
+      if (!videoUrl) throw new Error('Add a video file or URL.');
+      const id = editingId || Date.now();
+      const dur = Number($('f-duration').value) || 4;
+      const doc = {
+        id, hook: $('f-hook').value.trim(), niche: $('f-niche').value, category: $('f-category').value.trim() || 'General',
+        duration: dur + 's', resolution: '1080x1920', views: $('f-views').value.trim() || '',
+        bgGradient: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b',
+        videoSample: videoUrl, videoKey, howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
+        suggestedCaption: $('f-caption').value.trim(), template, published: $('f-published').checked,
+        createdAt: existing?.createdAt || Date.now(), updatedAt: Date.now(),
+        createdBy: firebase.auth().currentUser.email
+      };
+      await db.collection('hooks').doc(String(id)).set(doc);
+      setMsg('Saved! Live on the site now.', 'ok'); $('bar').style.display = 'none';
+      loadList(); if (!editingId) resetFormKeepMsg();
+    } catch (err) { setMsg(err.message || 'Save failed', 'err'); }
+    btn.disabled = false;
+  }
+  function resetFormKeepMsg() { const t = $('msg').textContent; resetForm(); setMsg(t, 'ok'); }
+
+  async function loadList() {
+    const db = await Cloud.db();
+    const snap = await db.collection('hooks').get();
+    const items = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    $('list').innerHTML = items.length ? items.map(h => `
+      <div class="row">
+        <video src="${esc(h.videoSample)}" muted preload="metadata"></video>
+        <div class="grow"><strong>${esc(h.hook)}</strong><div class="muted">${esc(h.niche)} · ${esc(h.duration)} · ${h.published ? 'published' : 'draft'} · by ${esc(h.createdBy || '')}</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="editHook(${Number(h.id)})">Edit</button>
+        <button class="btn btn-secondary btn-sm" onclick="delHook(${Number(h.id)})">Delete</button>
+      </div>`).join('') : 'No cloud hooks yet.';
+  }
+
+  async function editHook(id) {
+    const db = await Cloud.db();
+    const h = (await db.collection('hooks').doc(String(id)).get()).data();
+    if (!h) return;
+    editingId = id;
+    $('form-title').textContent = 'Edit hook #' + id;
+    $('btn-save').textContent = 'Save changes';
+    $('f-hook').value = h.hook; $('f-niche').value = h.niche; $('f-category').value = h.category || '';
+    $('f-duration').value = parseFloat(h.duration) || 4; $('f-views').value = h.views || '';
+    $('f-video-url').value = h.videoKey ? '' : h.videoSample; $('f-howto').value = h.howTo || '';
+    $('f-desc').value = h.description || ''; $('f-caption').value = h.suggestedCaption || '';
+    $('f-template').value = JSON.stringify(h.template || DEFAULT_TEMPLATE, null, 2);
+    $('f-published').checked = !!h.published;
+    scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function delHook(id) {
+    if (!confirm('Delete this hook?')) return;
+    const db = await Cloud.db();
+    await db.collection('hooks').doc(String(id)).delete();
+    loadList();
+  }
+
+  async function loadStaff() {
+    const db = await Cloud.db();
+    const snap = await db.collection('staff').get();
+    $('staff-list').innerHTML = snap.docs.map(d => `<div class="row"><div class="grow">${esc(d.id)}</div><button class="btn btn-secondary btn-sm" onclick="rmStaff('${esc(d.id)}')">Remove</button></div>`).join('') || '<span class="muted">No VAs yet.</span>';
+  }
+  async function addStaff(e) {
+    e.preventDefault();
+    const email = $('staff-email').value.trim().toLowerCase();
+    const db = await Cloud.db();
+    await db.collection('staff').doc(email).set({ addedAt: Date.now(), addedBy: firebase.auth().currentUser.email });
+    $('staff-email').value = ''; loadStaff();
+  }
+  async function rmStaff(email) {
+    const db = await Cloud.db();
+    await db.collection('staff').doc(email).delete(); loadStaff();
+  }
+
+  document.addEventListener('DOMContentLoaded', boot);
+  </script>
+</body>
+</html>
