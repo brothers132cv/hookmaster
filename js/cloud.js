@@ -28,6 +28,16 @@ const Cloud = {
     }
   },
 
+  /** Staff-curated royalty-free music for the editor's Audio tab. */
+  async fetchMusic() {
+    if (typeof AUTH_CONFIGURED === 'undefined' || !AUTH_CONFIGURED) return [];
+    try {
+      const db = await this.db();
+      const snap = await db.collection('music').get();
+      return snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    } catch (e) { return []; }
+  },
+
   /** Staff role for a signed-in user: 'admin' | 'va' | null */
   async getRole(user) {
     if (!user || !user.email) return null;

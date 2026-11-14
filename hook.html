@@ -6,8 +6,8 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title id="page-title">Viral Hook Template — HookMaster</title>
-  <meta name="description" id="page-desc" content="Free 9:16 viral video hook template for Reels, TikTok and Shorts. Preview footage, copy viral caption, and edit in Studio.">
+  <title id="page-title">Viral Video Hook — HookMaster</title>
+  <meta name="description" id="page-desc" content="Free 9:16 viral video hook for Reels, TikTok and Shorts. Preview footage, learn how to use it, and download in 1080p MP4.">
   <link rel="canonical" id="page-canonical" href="https://hookmaster.guru/hook.html">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -110,7 +110,6 @@
       <ul class="navbar-links" id="navbar-links">
         <li><a href="hooks.html">Free Hooks</a></li>
         <li><a href="prompts.html">AI Prompts</a></li>
-        <li><a href="studio.html">Studio Editor</a></li>
         <li><a href="shop.html">Pricing</a></li>
       </ul>
       <div class="navbar-cta">
@@ -166,14 +165,13 @@
             <img src="images/logo.jpg" alt="HookMaster logo" class="logo-img" width="36" height="36">
             <span>Hook<span class="gradient-text">Master</span></span>
           </a>
-          <p>Free scroll-stopping hooks & ready-to-use templates for Reels, TikTok & Shorts.</p>
+          <p>Free scroll-stopping video hooks for Reels, TikTok & Shorts.</p>
         </div>
         <div>
           <h4>Product</h4>
           <ul>
             <li><a href="hooks.html">Free Hooks</a></li>
             <li><a href="prompts.html">AI Prompts</a></li>
-            <li><a href="studio.html">Caption Studio</a></li>
             <li><a href="shop.html">Pricing</a></li>
           </ul>
         </div>
@@ -194,6 +192,7 @@
 
   <script src="js/auth.js"></script>
   <script src="js/cloud.js"></script>
+  <script src="js/adgate.js"></script>
   <script src="js/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -251,21 +250,13 @@
           </div>
 
           <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
-            <a href="studio.html?hookId=${encodeURIComponent(hook.id)}" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem;">
-              ⚡ Edit in Studio (CapCut Style)
-            </a>
-            <div style="display: flex; gap: 10px;">
-              <button class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;" onclick="downloadHook(${Number(hook.id)})">
-                ⬇ Download MP4
-              </button>
-              <button class="btn btn-secondary btn-sm" style="flex: 1; justify-content: center;" onclick="copyText('${esc(hook.hook)}', 'Hook text copied!')">
-                📋 Copy Text
-              </button>
-            </div>
+            <button class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem;" onclick='downloadHook(${JSON.stringify(hook.id)})'>
+              ⬇ Download 1080p MP4
+            </button>
           </div>
         </div>
 
-        <!-- Right Column: Information & Template Blueprint -->
+        <!-- Right Column: Information & How-to Guide -->
         <div class="hook-content-card">
           <div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
@@ -281,17 +272,15 @@
             </p>
           </div>
 
-          <!-- Included in this Template -->
+          <!-- Included Specs -->
           <div>
             <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 12px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
-              📦 Ready-to-Use Template Includes
+              📦 Video Specs
             </h3>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <span class="template-asset-pill">🎥 9:16 1080p B-Roll Opener (${esc(hook.duration || '4s')})</span>
-              <span class="template-asset-pill">✨ Bold Dark-Pill Text Overlay</span>
-              <span class="template-asset-pill">🎬 Drag-n-Drop User Footage Slot</span>
-              <span class="template-asset-pill">⚡ Seamless Cut/Fade Transition</span>
-              <span class="template-asset-pill">🎵 Sync Ready for Viral Sounds</span>
+              <span class="template-asset-pill">🎥 9:16 1080p MP4 (${esc(hook.duration || '4s')})</span>
+              <span class="template-asset-pill">📱 Ready for CapCut, Reels & TikTok</span>
+              <span class="template-asset-pill">🚫 Watermark-Free</span>
             </div>
           </div>
 
@@ -314,25 +303,20 @@
 
           <!-- Caption & Hashtags -->
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
-                📝 Suggested Caption & Hashtags
-              </h3>
-              <button class="btn btn-secondary btn-sm" onclick="copyText(document.getElementById('caption-box').innerText, 'Caption copied!')">
-                📋 Copy Caption
-              </button>
-            </div>
+            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+              📝 Suggested Caption & Hashtags
+            </h3>
             <div id="caption-box" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.88rem; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.5; font-family: inherit;">${esc(caption)}</div>
           </div>
 
           <!-- Direct CTA Banner -->
           <div style="background: linear-gradient(135deg, rgba(116,64,228,0.15), rgba(236,72,153,0.15)); border: 1px solid var(--border-glow); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
             <div>
-              <h4 style="font-size: 1.1rem; font-weight: 800; color: #fff;">Want to combine with your own clips?</h4>
-              <p style="color: var(--text-secondary); font-size: 0.88rem;">Open our CapCut-style studio, drop your video, and export the finished 9:16 reel in seconds.</p>
+              <h4 style="font-size: 1.1rem; font-weight: 800; color: #fff;">Need 4K + hundreds more hooks?</h4>
+              <p style="color: var(--text-secondary); font-size: 0.88rem;">Get the full 4K Hooks Vault, 1,000+ AI prompts, and CapCut templates. One payment.</p>
             </div>
-            <a href="studio.html?hookId=${encodeURIComponent(hook.id)}" class="btn btn-primary">
-              Open in Studio →
+            <a href="shop.html#bundle" class="btn btn-primary">
+              Get All Access — $49 →
             </a>
           </div>
 

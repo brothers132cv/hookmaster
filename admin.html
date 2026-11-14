@@ -16,7 +16,7 @@
     .panel h3 { margin-bottom: 14px; font-weight: 800; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 700px) { .grid2 { grid-template-columns: 1fr; } }
-    label { display: block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 12px 0 6px; }
+    label.l { display: block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin: 12px 0 6px; }
     textarea.search-input { padding: 10px 14px; font-family: inherit; line-height: 1.4; }
     .row { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
     .row video { width: 54px; height: 96px; object-fit: cover; border-radius: 8px; background: #000; }
@@ -47,15 +47,6 @@
   const app = $('app');
   let role = null, editingId = null;
 
-  const DEFAULT_TEMPLATE = {
-    version: 1, aspect: '9:16', duration: 4,
-    tracks: {
-      video: [{ id: 'hook', type: 'hook', start: 0, end: 4 }, { id: 'slot1', type: 'user-footage', start: 4, end: 10, label: 'Your footage' }],
-      text:  [{ text: 'YOUR HOOK TEXT', start: 0.2, end: 3.8, style: 'bold-white-pill', x: 0.5, y: 0.25 }],
-      audio: [], transitions: [{ at: 4, type: 'fade', duration: 0.3 }]
-    }
-  };
-
   async function boot() {
     if (!AUTH_CONFIGURED) { $('status').textContent = 'Firebase is not configured yet. Paste your web config into js/auth.js.'; return; }
     await loadFirebase();
@@ -77,35 +68,33 @@
     app.innerHTML = `
       <div class="panel">
         <h3>Staff Dashboard <span class="muted">· ${esc(user.email)} (${role})</span></h3>
-        <p class="muted">Publish a video hook with its how-to guide and editor template.</p>
+        <p class="muted">Upload a 9:16 video hook and publish it straight to the website.</p>
       </div>
       <div class="panel">
         <h3 id="form-title">New hook</h3>
         <form id="hook-form">
-          <label>Hook text (US English)</label>
+          <label class="l">Hook text (US English)</label>
           <input class="search-input" id="f-hook" required maxlength="140" placeholder="Stop scrolling if you want your Reels to blow up">
           <div class="grid2">
-            <div><label>Niche</label>
+            <div><label class="l">Niche</label>
               <select class="search-input" id="f-niche">
                 <option>business</option><option>finance</option><option>fitness</option><option>beauty</option><option>food</option><option>lifestyle</option><option>general</option>
               </select></div>
-            <div><label>Category / vibe</label><input class="search-input" id="f-category" placeholder="Cinematic B-Roll"></div>
-            <div><label>Duration (seconds)</label><input class="search-input" id="f-duration" type="number" min="1" max="30" step="0.1" value="4"></div>
-            <div><label>Views label (optional)</label><input class="search-input" id="f-views" placeholder="2.4M"></div>
+            <div><label class="l">Category / vibe</label><input class="search-input" id="f-category" placeholder="Cinematic B-Roll"></div>
+            <div><label class="l">Duration (seconds)</label><input class="search-input" id="f-duration" type="number" min="1" max="30" step="0.1" value="4"></div>
+            <div><label class="l">Views label (optional)</label><input class="search-input" id="f-views" placeholder="2.4M"></div>
           </div>
-          <label>Video file (9:16 MP4/WebM, max 150MB)</label>
+          <label class="l">Video file (9:16 MP4/WebM, max 150MB)</label>
           <input class="search-input" id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime">
-          <label>…or existing video URL (optional)</label>
+          <label class="l">…or existing video URL (optional)</label>
           <input class="search-input" id="f-video-url" placeholder="https://…">
-          <label>How to use this hook (shown on the hook page)</label>
-          <textarea class="search-input" id="f-howto" rows="5" placeholder="1. Open the template&#10;2. Add your footage after the hook&#10;3. Keep your first line under 2 seconds…"></textarea>
-          <label>Best for (short description)</label>
+          <label class="l">How to use this hook (one step per line — shown on the hook page)</label>
+          <textarea class="search-input" id="f-howto" rows="4" placeholder="1. Download the 1080p MP4 hook&#10;2. Place it as your first clip in CapCut or Reels&#10;3. Cut straight into your footage right after the hook"></textarea>
+          <label class="l">Best for (short description)</label>
           <textarea class="search-input" id="f-desc" rows="2" placeholder="Great for business tips, growth hacks, and educational Reels."></textarea>
-          <label>Suggested caption / hashtags</label>
+          <label class="l">Suggested caption / hashtags</label>
           <textarea class="search-input" id="f-caption" rows="2" placeholder="#reels #growth #smallbusiness"></textarea>
-          <label>Editor template (JSON) — loaded when a viewer clicks “Edit”</label>
-          <textarea class="search-input" id="f-template" rows="12" spellcheck="false" style="font-family:monospace;font-size:.82rem"></textarea>
-          <label style="display:flex;gap:8px;align-items:center;text-transform:none;font-size:.9rem"><input type="checkbox" id="f-published" checked> Published (visible on the website)</label>
+          <label style="display:flex;gap:8px;align-items:center;font-size:.9rem;margin-top:12px"><input type="checkbox" id="f-published" checked> Published (visible on the website)</label>
           <div class="bar" id="bar"><i id="bar-i"></i></div>
           <div style="display:flex;gap:10px;margin-top:16px">
             <button class="btn btn-primary" type="submit" id="btn-save">Publish hook</button>
@@ -132,17 +121,14 @@
     $('hook-form').reset();
     $('form-title').textContent = 'New hook';
     $('btn-save').textContent = 'Publish hook';
-    $('f-template').value = JSON.stringify(DEFAULT_TEMPLATE, null, 2);
     $('f-published').checked = true;
-    $('msg').textContent = '';
+    setMsg('');
   }
 
   function setMsg(t, cls) { const m = $('msg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
 
   async function saveHook(e) {
     e.preventDefault();
-    let template;
-    try { template = JSON.parse($('f-template').value); } catch (err) { return setMsg('Template JSON is invalid: ' + err.message, 'err'); }
     const btn = $('btn-save'); btn.disabled = true;
     try {
       const db = await Cloud.db();
@@ -162,17 +148,19 @@
         duration: dur + 's', resolution: '1080x1920', views: $('f-views').value.trim() || '',
         bgGradient: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b',
         videoSample: videoUrl, videoKey, howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
-        suggestedCaption: $('f-caption').value.trim(), template, published: $('f-published').checked,
+        suggestedCaption: $('f-caption').value.trim(), published: $('f-published').checked,
         createdAt: existing?.createdAt || Date.now(), updatedAt: Date.now(),
-        createdBy: firebase.auth().currentUser.email
+        createdBy: existing?.createdBy || firebase.auth().currentUser.email
       };
       await db.collection('hooks').doc(String(id)).set(doc);
-      setMsg('Saved! Live on the site now.', 'ok'); $('bar').style.display = 'none';
-      loadList(); if (!editingId) resetFormKeepMsg();
+      const wasEditing = !!editingId;
+      $('bar').style.display = 'none';
+      loadList();
+      if (!wasEditing) resetForm();
+      setMsg('Saved! Live on the site now.', 'ok');
     } catch (err) { setMsg(err.message || 'Save failed', 'err'); }
     btn.disabled = false;
   }
-  function resetFormKeepMsg() { const t = $('msg').textContent; resetForm(); setMsg(t, 'ok'); }
 
   async function loadList() {
     const db = await Cloud.db();
@@ -182,6 +170,7 @@
       <div class="row">
         <video src="${esc(h.videoSample)}" muted preload="metadata"></video>
         <div class="grow"><strong>${esc(h.hook)}</strong><div class="muted">${esc(h.niche)} · ${esc(h.duration)} · ${h.published ? 'published' : 'draft'} · by ${esc(h.createdBy || '')}</div></div>
+        <a class="btn btn-secondary btn-sm" href="hook.html?id=${Number(h.id)}" target="_blank">View</a>
         <button class="btn btn-secondary btn-sm" onclick="editHook(${Number(h.id)})">Edit</button>
         <button class="btn btn-secondary btn-sm" onclick="delHook(${Number(h.id)})">Delete</button>
       </div>`).join('') : 'No cloud hooks yet.';
@@ -198,9 +187,9 @@
     $('f-duration').value = parseFloat(h.duration) || 4; $('f-views').value = h.views || '';
     $('f-video-url').value = h.videoKey ? '' : h.videoSample; $('f-howto').value = h.howTo || '';
     $('f-desc').value = h.description || ''; $('f-caption').value = h.suggestedCaption || '';
-    $('f-template').value = JSON.stringify(h.template || DEFAULT_TEMPLATE, null, 2);
     $('f-published').checked = !!h.published;
-    scrollTo({ top: 0, behavior: 'smooth' });
+    setMsg('');
+    $('hook-form').scrollIntoView({ behavior: 'smooth' });
   }
 
   async function delHook(id) {

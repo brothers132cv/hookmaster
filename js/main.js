@@ -186,12 +186,8 @@ function createHookCard(hook) {
           <span class="badge badge-niche">${esc(hook.niche)}</span>
           <a href="hook.html?id=${encodeURIComponent(hookId)}" style="font-size:0.75rem; color:var(--accent-cyan); text-decoration:none; font-weight:700;">View Guide →</a>
         </div>
-        <div class="video-card-actions" style="margin-bottom: 6px;">
-          <a href="studio.html?hookId=${encodeURIComponent(hookId)}" class="btn btn-primary btn-sm" style="flex:1; justify-content:center; text-decoration:none;">⚡ Edit in Studio</a>
-          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="flex:0.8; justify-content:center; text-decoration:none;">ℹ️ Template</a>
-        </div>
         <div class="video-card-actions">
-          <button class="btn btn-secondary btn-sm" data-copy="${esc(hook.hook)}" onclick="copyText(this.dataset.copy, 'Hook text copied!')">📋 Copy</button>
+          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none;">ℹ️ How to Use</a>
           <button class="btn btn-download btn-sm" onclick="downloadHook(${JSON.stringify(hookId)})">⬇ Download</button>
         </div>
       </div>
@@ -221,23 +217,25 @@ function toggleVideoPlayback(wrapper) {
 }
 
 function downloadHook(hookId) {
-  // Optional gate: only active once Firebase is configured in js/auth.js
-  if (typeof HookAuth !== 'undefined' && typeof AUTH_CONFIGURED !== 'undefined' && AUTH_CONFIGURED && !HookAuth.isLoggedIn) {
-    HookAuth.openModal();
-    showToast('Sign in (free) to download.');
-    return;
-  }
-  const hook = allHooks.find(h => h.id === hookId);
+  const hook = allHooks.find(h => String(h.id) === String(hookId));
   if (!hook) return;
-  const a = document.createElement('a');
-  a.href = hook.videoSample;
-  a.download = `HookMaster_${String(hook.niche).replace(/[^a-z0-9_-]/gi, '')}_${Number(hook.id)}.mp4`;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  showUpsellToast();
+  const filename = `HookMaster_${String(hook.niche).replace(/[^a-z0-9_-]/gi, '')}_${String(hook.id)}.mp4`;
+  AdGate.run({
+    title: 'Getting your <span class="gradient-text">hook</span> ready',
+    sub: '1080p MP4 · free · no watermark',
+    work: async (onProgress) => {
+      try {
+        onProgress(0.3);
+        const res = await fetch(hook.videoSample, { mode: 'cors' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const blob = await res.blob();
+        return { blob, filename };
+      } catch (e) {
+        // Source without CORS: fall back to a direct link
+        return { url: hook.videoSample, filename };
+      }
+    }
+  });
 }
 
 function showUpsellToast() {
