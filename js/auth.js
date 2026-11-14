@@ -67,9 +67,11 @@ const HookAuth = {
 
   updateNavbar() {
     const cta = document.querySelector('.navbar-cta');
+    const links = document.getElementById('navbar-links');
     if (!cta) return;
     document.getElementById('user-nav-dropdown')?.remove();
     document.getElementById('btn-open-signin')?.remove();
+    document.getElementById('mobile-auth-item')?.remove();
 
     if (this.isLoggedIn && this.currentUser) {
       const name = esc(this.currentUser.name);
@@ -79,9 +81,24 @@ const HookAuth = {
           <a href="hooks.html?tab=saved" class="btn btn-secondary btn-sm">Saved</a>
           <button class="btn btn-secondary btn-sm" onclick="HookAuth.logout()">Sign Out</button>
         </div>`);
+      if (links) {
+        links.insertAdjacentHTML('beforeend', `
+          <li id="mobile-auth-item" class="mobile-only" style="border-top:1px solid var(--border-color);padding-top:10px;margin-top:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+              <span style="font-size:0.95rem;font-weight:700;color:#fff;">👋 ${name}</span>
+              <button class="btn btn-secondary btn-sm" onclick="HookAuth.logout()">Sign Out</button>
+            </div>
+          </li>`);
+      }
     } else {
       cta.insertAdjacentHTML('afterbegin',
         `<button class="btn btn-secondary btn-sm" id="btn-open-signin" onclick="HookAuth.openModal()" style="padding:8px 16px;">Sign In</button>`);
+      if (links) {
+        links.insertAdjacentHTML('beforeend', `
+          <li id="mobile-auth-item" class="mobile-only" style="border-top:1px solid var(--border-color);padding-top:10px;margin-top:6px;">
+            <button class="btn btn-secondary btn-sm" onclick="HookAuth.openModal()" style="width:100%;justify-content:center;">Sign In / Join Free</button>
+          </li>`);
+      }
     }
   },
 

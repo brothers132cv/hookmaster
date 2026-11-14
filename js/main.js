@@ -90,9 +90,24 @@ function setupNav() {
   const btn = document.getElementById('mobile-menu-btn');
   const links = document.getElementById('navbar-links');
   if (btn && links) {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       links.classList.toggle('open');
       btn.textContent = links.classList.contains('open') ? '✕' : '☰';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (links.classList.contains('open') && !links.contains(e.target) && !btn.contains(e.target)) {
+        links.classList.remove('open');
+        btn.textContent = '☰';
+      }
+    });
+
+    links.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        links.classList.remove('open');
+        btn.textContent = '☰';
+      });
     });
   }
 }
