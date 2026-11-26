@@ -96,6 +96,8 @@
           <textarea class="search-input" id="f-desc" rows="2" placeholder="Great for business tips, growth hacks, and educational Reels."></textarea>
           <label class="l">Suggested caption / hashtags</label>
           <textarea class="search-input" id="f-caption" rows="2" placeholder="#reels #growth #smallbusiness"></textarea>
+          <label class="l">Matching AI B-Roll Prompt (Midjourney / Kling / Runway)</label>
+          <textarea class="search-input" id="f-aiprompt" rows="2" placeholder="9:16 vertical video, cinematic luxury office, dark aesthetic, 4k realistic --ar 9:16"></textarea>
           <label style="display:flex;gap:8px;align-items:center;font-size:.9rem;margin-top:12px"><input type="checkbox" id="f-published" checked> Published (visible on the website)</label>
           <div class="bar" id="bar"><i id="bar-i"></i></div>
           <div style="display:flex;gap:10px;margin-top:16px">
@@ -125,6 +127,7 @@
     $('btn-save').textContent = 'Publish hook';
     $('f-published').checked = true;
     if ($('f-instagram')) $('f-instagram').value = '';
+    if ($('f-aiprompt')) $('f-aiprompt').value = '';
     setMsg('');
   }
 
@@ -153,7 +156,9 @@
         videoSample: videoUrl, videoKey,
         exampleInstagram: $('f-instagram').value.trim(),
         howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
-        suggestedCaption: $('f-caption').value.trim(), published: $('f-published').checked,
+        suggestedCaption: $('f-caption').value.trim(),
+        aiPrompt: $('f-aiprompt') ? $('f-aiprompt').value.trim() : '',
+        published: $('f-published').checked,
         createdAt: existing?.createdAt || Date.now(), updatedAt: Date.now(),
         createdBy: existing?.createdBy || firebase.auth().currentUser.email
       };
@@ -193,7 +198,9 @@
     $('f-video-url').value = h.videoKey ? '' : h.videoSample;
     $('f-instagram').value = h.exampleInstagram || '';
     $('f-howto').value = h.howTo || '';
-    $('f-desc').value = h.description || ''; $('f-caption').value = h.suggestedCaption || '';
+    $('f-desc').value = h.description || '';
+    $('f-caption').value = h.suggestedCaption || '';
+    if ($('f-aiprompt')) $('f-aiprompt').value = h.aiPrompt || '';
     $('f-published').checked = !!h.published;
     setMsg('');
     $('hook-form').scrollIntoView({ behavior: 'smooth' });

@@ -327,11 +327,34 @@
 
           <!-- Caption & Hashtags -->
           <div>
-            <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-              📝 Suggested Caption & Hashtags
-            </h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                📝 Suggested Caption & Hashtags
+              </h3>
+              <button class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 4px 10px;" onclick="copyTextToClipboard(this.getAttribute('data-copy'), this)" data-copy="${esc(caption)}">
+                📋 Copy Caption
+              </button>
+            </div>
             <div id="caption-box" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.88rem; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.5; font-family: inherit;">${esc(caption)}</div>
           </div>
+
+          <!-- Matching AI Video Prompt (Midjourney / Kling / Runway) -->
+          ${hook.aiPrompt ? `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                🤖 Matching AI B-Roll Prompt
+              </h3>
+              <button class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 4px 10px;" onclick="copyTextToClipboard(this.getAttribute('data-copy'), this)" data-copy="${esc(hook.aiPrompt)}">
+                📋 Copy Prompt
+              </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.84rem; margin-bottom: 10px;">
+              Generate high-retention 9:16 background footage in Midjourney, Kling AI, or Runway:
+            </p>
+            <div style="background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.25); border-radius: var(--radius-md); padding: 14px 18px; font-size: 0.88rem; color: var(--accent-cyan); font-family: monospace; line-height: 1.5; word-break: break-word;">${esc(hook.aiPrompt)}</div>
+          </div>
+          ` : ''}
 
           <!-- Direct CTA Banner -->
           <div style="background: linear-gradient(135deg, rgba(116,64,228,0.15), rgba(236,72,153,0.15)); border: 1px solid var(--border-glow); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
@@ -417,6 +440,17 @@
         };
         document.body.appendChild(script);
       }
+    }
+
+    function copyTextToClipboard(text, btn) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+      }).catch(() => {
+        showToast ? showToast('Copied to clipboard!') : alert('Copied!');
+      });
     }
 
     function renderRelatedHooks(currentHook) {
