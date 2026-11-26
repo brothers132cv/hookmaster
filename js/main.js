@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    HookMaster — Core JavaScript
    ============================================ */
 
@@ -194,8 +194,8 @@ function createHookCard(hook) {
           <span class="badge badge-views">🔥 ${esc(viewsText)}</span>
         </div>
         ${hasVideo ? '<div class="video-play-btn">▶</div>' : ''}
-        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none; position:relative; z-index:2; margin:auto 0;" onclick="event.stopPropagation();">
-          <div class="caption-text" style="font-size:1.1rem; line-height:1.35; font-weight:800;">"${esc(hook.hook)}"</div>
+        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none; pointer-events:auto; text-align:center;" onclick="event.stopPropagation();">
+          <div class="caption-text" style="font-size:1.05rem; line-height:1.35; font-weight:800; display:inline-block;">"${esc(hook.hook)}"</div>
         </a>
       </div>
       <div class="video-card-body">
