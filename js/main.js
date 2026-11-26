@@ -206,7 +206,8 @@ function createHookCard(hook) {
           <a href="hook.html?id=${encodeURIComponent(hookId)}" style="font-size:0.75rem; color:var(--accent-cyan); text-decoration:none; font-weight:700;">View Guide →</a>
         </div>
         <div class="video-card-actions">
-          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none; width:100%;">ℹ️ How to Use &amp; Reel</a>
+          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none; flex:1;">ℹ️ How to Use</a>
+          ${hasVideo ? `<button class="btn btn-download btn-sm" onclick="downloadHook(${JSON.stringify(hookId)})">⬇ Download</button>` : ''}
         </div>
       </div>
     </div>`;

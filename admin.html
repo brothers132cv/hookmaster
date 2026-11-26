@@ -87,6 +87,14 @@
             </div>
           </div>
 
+          <label class="l">Video file (9:16 MP4/WebM, max 150MB)</label>
+          <input class="search-input" id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime">
+          
+          <label class="l">…or direct video URL (optional)</label>
+          <input class="search-input" id="f-video-url" placeholder="https://…">
+          
+          <div class="bar" id="bar"><i id="bar-i"></i></div>
+
           <label class="l">Viral Instagram Example URL (Reel / Post)</label>
           <input class="search-input" id="f-instagram" placeholder="https://www.instagram.com/reel/C8.../">
           
@@ -131,8 +139,11 @@
     $('f-published').checked = true;
     if ($('f-tags')) $('f-tags').value = '';
     if ($('f-views')) $('f-views').value = '';
+    if ($('f-video')) $('f-video').value = '';
+    if ($('f-video-url')) $('f-video-url').value = '';
     if ($('f-instagram')) $('f-instagram').value = '';
     if ($('f-aiprompt')) $('f-aiprompt').value = '';
+    if ($('bar')) $('bar').style.display = 'none';
     setMsg('');
   }
 
@@ -152,6 +163,15 @@
         const ids = snap.docs.map(d => Number(d.id) || 0).filter(n => n > 0);
         id = ids.length ? Math.max(...ids) + 1 : 1;
       }
+
+      // Handle video upload or direct video URL
+      let videoKey = existing?.videoKey || '';
+      const file = $('f-video').files[0];
+      if (file) {
+        $('bar').style.display = 'block'; setMsg('Uploading video…');
+        videoKey = await Cloud.upload(file, 'hooks', p => $('bar-i').style.width = Math.round(p * 100) + '%');
+      }
+      const videoUrl = $('f-video-url').value.trim() || (videoKey ? Cloud.mediaUrl(videoKey) : existing?.videoSample || '');
 
       // Views: random 2-10M if not provided
       let viewsVal = ($('f-views').value || '').trim();
@@ -183,6 +203,8 @@
         resolution: '1080p Full HD',
         views: viewsVal,
         bgGradient,
+        videoSample: videoUrl,
+        videoKey: videoKey,
         exampleInstagram: $('f-instagram').value.trim(),
         howTo: $('f-howto').value.trim(),
         description: $('f-desc').value.trim(),
@@ -195,6 +217,7 @@
       };
       await db.collection('hooks').doc(String(id)).set(doc);
       const wasEditing = !!editingId;
+      if ($('bar')) $('bar').style.display = 'none';
       loadList();
       if (!wasEditing) resetForm();
       setMsg('Saved Hook #' + id + '! Live on site now.', 'ok');
@@ -208,9 +231,12 @@
     const items = snap.docs.map(d => d.data()).sort((a, b) => (b.id || 0) - (a.id || 0));
     $('list').innerHTML = items.length ? items.map(h => {
       const tagsText = Array.isArray(h.tags) ? h.tags.map(t => '#' + t).join(' ') : (h.tags || h.niche || '');
+      const thumb = h.videoSample
+        ? `<video src="${esc(h.videoSample)}" muted preload="metadata" style="width:48px;height:64px;border-radius:6px;object-fit:cover;background:#000;"></video>`
+        : `<div style="width:48px;height:64px;border-radius:6px;background:${h.bgGradient || '#1e1b4b'};display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#fff;">#${h.id}</div>`;
       return `
       <div class="row">
-        <div style="width:48px;height:64px;border-radius:6px;background:${h.bgGradient || '#1e1b4b'};display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#fff;">#${h.id}</div>
+        ${thumb}
         <div class="grow">
           <strong>"${esc(h.hook)}"</strong>
           <div class="muted">${esc(tagsText)} · ${esc(h.views || '')} · ${h.published ? 'published' : 'draft'}</div>
@@ -232,6 +258,7 @@
     $('f-hook').value = h.hook;
     $('f-tags').value = Array.isArray(h.tags) ? h.tags.join(', ') : (h.tags || h.niche || '');
     $('f-views').value = h.views || '';
+    $('f-video-url').value = h.videoKey ? '' : (h.videoSample || '');
     $('f-instagram').value = h.exampleInstagram || '';
     $('f-howto').value = h.howTo || '';
     $('f-desc').value = h.description || '';

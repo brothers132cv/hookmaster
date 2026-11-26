@@ -272,8 +272,12 @@
           </div>
 
           <div style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            ${hasVideo ? `
+            <button class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem;" onclick='downloadHook(${JSON.stringify(hook.id)})'>
+              ⬇ Download 1080p MP4
+            </button>` : ''}
             ${igUrl ? `
-            <a href="${esc(igUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg" style="width: 100%; justify-content: center; font-size: 1.05rem; text-decoration: none;">
+            <a href="${esc(igUrl)}" target="_blank" rel="noopener noreferrer" class="btn ${hasVideo ? 'btn-secondary' : 'btn-primary btn-lg'} btn-sm" style="width: 100%; justify-content: center; font-size: 0.95rem; text-decoration: none; padding: 11px;">
               🔥 Watch Reel on Instagram ↗
             </a>` : ''}
             <button class="btn btn-secondary btn-sm" style="width: 100%; justify-content: center; padding: 10px;" onclick="copyTextToClipboard('${esc(hook.hook).replace(/'/g, "\\'")}', this)">
