@@ -88,6 +88,8 @@
           <input class="search-input" id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime">
           <label class="l">…or existing video URL (optional)</label>
           <input class="search-input" id="f-video-url" placeholder="https://…">
+          <label class="l">Viral Instagram Example URL (Reel / Post)</label>
+          <input class="search-input" id="f-instagram" placeholder="https://www.instagram.com/reel/C8.../">
           <label class="l">How to use this hook (one step per line — shown on the hook page)</label>
           <textarea class="search-input" id="f-howto" rows="4" placeholder="1. Download the 1080p MP4 hook&#10;2. Place it as your first clip in CapCut or Reels&#10;3. Cut straight into your footage right after the hook"></textarea>
           <label class="l">Best for (short description)</label>
@@ -122,6 +124,7 @@
     $('form-title').textContent = 'New hook';
     $('btn-save').textContent = 'Publish hook';
     $('f-published').checked = true;
+    if ($('f-instagram')) $('f-instagram').value = '';
     setMsg('');
   }
 
@@ -147,7 +150,9 @@
         id, hook: $('f-hook').value.trim(), niche: $('f-niche').value, category: $('f-category').value.trim() || 'General',
         duration: dur + 's', resolution: '1080x1920', views: $('f-views').value.trim() || '',
         bgGradient: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b',
-        videoSample: videoUrl, videoKey, howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
+        videoSample: videoUrl, videoKey,
+        exampleInstagram: $('f-instagram').value.trim(),
+        howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
         suggestedCaption: $('f-caption').value.trim(), published: $('f-published').checked,
         createdAt: existing?.createdAt || Date.now(), updatedAt: Date.now(),
         createdBy: existing?.createdBy || firebase.auth().currentUser.email
@@ -185,7 +190,9 @@
     $('btn-save').textContent = 'Save changes';
     $('f-hook').value = h.hook; $('f-niche').value = h.niche; $('f-category').value = h.category || '';
     $('f-duration').value = parseFloat(h.duration) || 4; $('f-views').value = h.views || '';
-    $('f-video-url').value = h.videoKey ? '' : h.videoSample; $('f-howto').value = h.howTo || '';
+    $('f-video-url').value = h.videoKey ? '' : h.videoSample;
+    $('f-instagram').value = h.exampleInstagram || '';
+    $('f-howto').value = h.howTo || '';
     $('f-desc').value = h.description || ''; $('f-caption').value = h.suggestedCaption || '';
     $('f-published').checked = !!h.published;
     setMsg('');

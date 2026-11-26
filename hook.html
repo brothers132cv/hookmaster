@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.googleapis.com https://*.workers.dev https://*.hookmaster.guru https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://www.instagram.com https://*.instagram.com https://*.cdninstagram.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' https://*.googleapis.com https://*.workers.dev https://*.hookmaster.guru https://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com https://www.instagram.com https://*.instagram.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -241,6 +241,7 @@
 
       renderHookPage(hook);
       renderRelatedHooks(hook);
+      loadInstagramEmbedScript();
     });
 
     function renderHookPage(hook) {
@@ -321,6 +322,9 @@
             </div>
           </div>
 
+          <!-- Viral Example in Action (Instagram) -->
+          ${renderViralExampleSection(hook)}
+
           <!-- Caption & Hashtags -->
           <div>
             <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
@@ -342,6 +346,77 @@
 
         </div>
       `;
+    }
+
+    function renderViralExampleSection(hook) {
+      const igUrl = (hook.exampleInstagram || hook.exampleUrl || hook.instagramUrl || '').trim();
+      if (igUrl) {
+        // Clean and ensure full url
+        let cleanUrl = igUrl.split('?')[0].replace(/\/+$/, '') + '/';
+        if (!cleanUrl.startsWith('http')) cleanUrl = 'https://' + cleanUrl;
+        return `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                🔥 Viral Example in Action
+              </h3>
+              <a href="${esc(cleanUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 5px 12px; display: inline-flex; align-items: center; gap: 6px;">
+                <span>Open Reel on Instagram</span>
+                <span style="font-size: 1rem;">↗</span>
+              </a>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 14px;">
+              Watch how this exact hook framework generated massive engagement in a live creator post:
+            </p>
+            <div style="max-width: 480px; margin: 0 auto; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 12px; border: 1px solid var(--border-color); display: flex; justify-content: center; min-height: 200px;">
+              <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${esc(cleanUrl)}" data-instgrm-version="14" style="background:#0b0b14; border:0; border-radius:12px; box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); margin: 1px; max-width:540px; min-width:280px; padding:0; width:99.375%;">
+                <div style="padding:24px; text-align:center;">
+                  <a href="${esc(cleanUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-pink); font-weight:700; text-decoration:none; font-size:0.95rem;">
+                    ▶ Loading Instagram Reel Preview... Click here to view on Instagram
+                  </a>
+                </div>
+              </blockquote>
+            </div>
+          </div>
+        `;
+      }
+
+      // Fallback search suggestions if no specific reel URL provided yet
+      const nicheQuery = (hook.niche || 'reels').replace(/\s+/g, '');
+      return `
+        <div>
+          <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+            🔥 Viral Examples in This Niche
+          </h3>
+          <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.92rem; color: #fff;">Explore trending #${nicheQuery}hooks on Instagram</div>
+              <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Study how top creators adapt this hook angle for viral retention.</div>
+            </div>
+            <a href="https://www.instagram.com/explore/tags/${encodeURIComponent(nicheQuery)}hooks/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; white-space: nowrap;">
+              Explore #${nicheQuery}hooks ↗
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    function loadInstagramEmbedScript() {
+      if (window.instgrm && window.instgrm.widgets) {
+        window.instgrm.widgets.load();
+      } else if (!document.getElementById('instagram-embed-script')) {
+        const script = document.createElement('script');
+        script.id = 'instagram-embed-script';
+        script.async = true;
+        script.defer = true;
+        script.src = 'https://www.instagram.com/embed.js';
+        script.onload = () => {
+          if (window.instgrm && window.instgrm.widgets) {
+            window.instgrm.widgets.load();
+          }
+        };
+        document.body.appendChild(script);
+      }
     }
 
     function renderRelatedHooks(currentHook) {

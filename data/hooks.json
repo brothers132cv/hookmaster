@@ -8,7 +8,8 @@
     "resolution": "1080x1920",
     "views": "2.4M",
     "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b",
-    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4"
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-man-working-on-his-laptop-308-large.mp4",
+    "exampleInstagram": "https://www.instagram.com/reel/C8_j31lP4c0/"
   },
   {
     "id": 2,
@@ -19,7 +20,8 @@
     "resolution": "1080x1920",
     "views": "5.1M",
     "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #064e3b",
-    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-counting-money-bills-42653-large.mp4"
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-counting-money-bills-42653-large.mp4",
+    "exampleInstagram": "https://www.instagram.com/reel/C7-H4_zS4sM/"
   },
   {
     "id": 3,
@@ -30,7 +32,8 @@
     "resolution": "1080x1920",
     "views": "4.2M",
     "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #7f1d1d",
-    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-weights-in-a-gym-41584-large.mp4"
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-athletic-man-lifting-weights-in-a-gym-41584-large.mp4",
+    "exampleInstagram": "https://www.instagram.com/reel/C6m0sKLPw0f/"
   },
   {
     "id": 4,
@@ -41,7 +44,8 @@
     "resolution": "1080x1920",
     "views": "8.7M",
     "bgGradient": "linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #312e81",
-    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-night-sky-with-stars-at-a-calm-lake-time-lapse-42531-large.mp4"
+    "videoSample": "https://assets.mixkit.co/videos/preview/mixkit-night-sky-with-stars-at-a-calm-lake-time-lapse-42531-large.mp4",
+    "exampleInstagram": "https://www.instagram.com/reel/C5qL9lPuvqZ/"
   },
   {
     "id": 5,
