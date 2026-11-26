@@ -187,14 +187,14 @@ function createHookCard(hook) {
 
   return `
     <div class="video-hook-card" data-id="${esc(hookId)}">
-      <div class="video-preview-wrapper" ${hasVideo ? 'onclick="toggleVideoPlayback(this)"' : ''} style="background: ${hook.bgGradient || 'linear-gradient(135deg, #181828, #0B0B14)'}; display:flex; flex-direction:column; justify-content:space-between; padding:18px; position:relative; overflow:hidden;">
+      <div class="video-preview-wrapper" ${hasVideo ? 'onclick="toggleVideoPlayback(this)"' : ''} style="background: ${hook.bgGradient || 'linear-gradient(135deg, #181828, #0B0B14)'}; position:relative; overflow:hidden;">
         ${hasVideo ? `<video src="${esc(hook.videoSample)}" preload="metadata" muted loop playsinline style="background:#0f172a; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video><div class="video-overlay-gradient"></div>` : '<div class="video-overlay-gradient" style="opacity:0.35;"></div>'}
-        <div class="video-top-badges" style="position:relative; z-index:2; display:flex; justify-content:space-between; width:100%;">
+        <div class="video-top-badges">
           <span class="badge badge-resolution">Full HD</span>
           <span class="badge badge-views">🔥 ${esc(viewsText)}</span>
         </div>
         ${hasVideo ? '<div class="video-play-btn">▶</div>' : ''}
-        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none; pointer-events:auto; text-align:center;" onclick="event.stopPropagation();">
+        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none; pointer-events:auto; text-align:center; position:absolute; bottom:16px; left:16px; right:16px; margin:0;" onclick="event.stopPropagation();">
           <div class="caption-text" style="font-size:1.05rem; line-height:1.35; font-weight:800; display:inline-block;">"${esc(hook.hook)}"</div>
         </a>
       </div>
