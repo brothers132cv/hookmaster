@@ -164,7 +164,7 @@
     <section style="margin-top: 40px; margin-bottom: 80px;">
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h3 style="font-size: 1.5rem; font-weight: 800;">More Viral Hooks in <span class="gradient-text" id="related-niche-name">This Niche</span></h3>
+          <h3 style="font-size: 1.5rem; font-weight: 800;">More Hooks Tagged <span class="gradient-text" id="related-niche-name">#viral</span></h3>
           <p style="color: var(--text-muted); font-size: 0.9rem;">Browse proven high-retention openers ready for 9:16 export.</p>
         </div>
         <a href="hooks.html" class="btn btn-secondary btn-sm">Explore All Hooks →</a>
@@ -253,6 +253,12 @@
 
       const hasVideo = !!hook.videoSample;
       const igUrl = (hook.exampleInstagram || hook.exampleUrl || hook.instagramUrl || '').trim();
+      const description = hook.description || 'A proven 9:16 opener built to stop the scroll in the first second.';
+      const howToSteps = Array.isArray(hook.howTo)
+        ? hook.howTo
+        : String(hook.howTo || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (!howToSteps.length) howToSteps.push('Download the clip in 1080p.', 'Drop it as the first 1–2 seconds of your video in CapCut.', 'Add your hook text on top and post.');
+      const caption = hook.suggestedCaption || hook.caption || '';
 
       document.getElementById('hook-detail-app').innerHTML = `
         <!-- Left Column: Video Preview & Primary CTAs -->
@@ -414,11 +420,12 @@
       }
 
       // Fallback search suggestions if no specific reel URL provided yet
-      const nicheQuery = (hook.niche || 'reels').replace(/\s+/g, '');
+      const firstTag = Array.isArray(hook.tags) ? hook.tags[0] : String(hook.tags || '').split(',')[0];
+      const nicheQuery = String(firstTag || hook.niche || 'reels').replace(/[^a-z0-9]/gi, '').toLowerCase();
       return `
         <div>
           <h3 style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-            🔥 Viral Examples in This Niche
+            🔥 Viral Examples With This Hook Style
           </h3>
           <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
             <div>

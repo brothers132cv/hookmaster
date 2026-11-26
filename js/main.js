@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    HookMaster — Core JavaScript
    ============================================ */
 
@@ -45,11 +45,9 @@ async function initApp() {
     ]);
     allHooks = [...cloudHooks, ...staticHooks]; // newest staff uploads first
     if (document.getElementById('video-hooks-grid')) {
-      const niche = new URLSearchParams(location.search).get('niche');
-      if (niche) {
-        activeNiche = niche;
-        document.querySelectorAll('.filter-btn[data-niche]').forEach(b => b.classList.toggle('active', b.dataset.niche === niche));
-      }
+      const tag = new URLSearchParams(location.search).get('tag') || new URLSearchParams(location.search).get('niche');
+      if (tag) activeNiche = tag.toLowerCase();
+      buildTagFilters();
       filterAndRenderHooks();
       setupHookFilters();
     }
@@ -173,7 +171,7 @@ function renderHookGrid(id, hooks) {
   const grid = document.getElementById(id);
   if (!grid) return;
   if (!hooks.length) {
-    grid.innerHTML = `<div class="empty-state"><h3>No hooks found</h3><p>Try another keyword or niche.</p></div>`;
+    grid.innerHTML = `<div class="empty-state"><h3>No hooks found</h3><p>Try another keyword or tag.</p></div>`;
     return;
   }
   grid.innerHTML = hooks.map(createHookCard).join('');
@@ -207,7 +205,9 @@ function createHookCard(hook) {
         </div>
         <div class="video-card-actions">
           <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none; flex:1;">ℹ️ How to Use</a>
-          ${hasVideo ? `<button class="btn btn-download btn-sm" onclick="downloadHook(${JSON.stringify(hookId)})">⬇ Download</button>` : ''}
+          ${hasVideo
+            ? `<button class="btn btn-download btn-sm" onclick='downloadHook(${JSON.stringify(hookId)})'>⬇ Download</button>`
+            : `<a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-download btn-sm" style="text-decoration:none;justify-content:center;">⬇ Download</a>`}
         </div>
       </div>
     </div>`;
@@ -217,13 +217,14 @@ function attachPreviewListeners(scope) {
   scope.querySelectorAll('.video-preview-wrapper').forEach(wrapper => {
     const video = wrapper.querySelector('video');
     const playBtn = wrapper.querySelector('.video-play-btn');
+    if (!video) return;
     wrapper.addEventListener('mouseenter', () => {
-      video.play().then(() => { playBtn.style.opacity = '0'; }).catch(() => {});
+      video.play().then(() => { if (playBtn) playBtn.style.opacity = '0'; }).catch(() => {});
     });
     wrapper.addEventListener('mouseleave', () => {
       video.pause();
       video.currentTime = 0;
-      playBtn.style.opacity = '1';
+      if (playBtn) playBtn.style.opacity = '1';
     });
   });
 }
@@ -231,14 +232,22 @@ function attachPreviewListeners(scope) {
 function toggleVideoPlayback(wrapper) {
   const video = wrapper.querySelector('video');
   const playBtn = wrapper.querySelector('.video-play-btn');
-  if (video.paused) { video.play().catch(() => {}); playBtn.style.opacity = '0'; }
-  else { video.pause(); playBtn.style.opacity = '1'; }
+  if (!video) return;
+  if (video.paused) { video.play().catch(() => {}); if (playBtn) playBtn.style.opacity = '0'; }
+  else { video.pause(); if (playBtn) playBtn.style.opacity = '1'; }
 }
 
 function downloadHook(hookId) {
   const hook = allHooks.find(h => String(h.id) === String(hookId));
-  if (!hook) return;
-  const filename = `HookMaster_${String(hook.niche).replace(/[^a-z0-9_-]/gi, '')}_${String(hook.id)}.mp4`;
+  if (!hook || !hook.videoSample) return;
+  const firstTag = Array.isArray(hook.tags) ? hook.tags[0] : String(hook.tags || hook.niche || 'hook').split(',')[0];
+  const filename = `HookMaster_${String(firstTag || 'hook').replace(/[^a-z0-9_-]/gi, '')}_${String(hook.id)}.mp4`;
+  if (typeof AdGate === 'undefined') {
+    const a = document.createElement('a');
+    a.href = hook.videoSample; a.download = filename; a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    return;
+  }
   AdGate.run({
     title: 'Getting your <span class="gradient-text">hook</span> ready',
     sub: '1080p MP4 · free · no watermark',
@@ -261,6 +270,22 @@ function showUpsellToast() {
   showToast('Downloading… Want 4K + hundreds more? <a href="shop.html#bundle">See All Access →</a>', true);
 }
 
+function getHookTags(h) {
+  const raw = Array.isArray(h.tags) ? h.tags : (h.tags ? String(h.tags).split(',') : (h.niche ? [h.niche] : []));
+  return raw.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+}
+
+function buildTagFilters() {
+  const box = document.getElementById('tag-filters');
+  if (!box) return;
+  const counts = {};
+  allHooks.forEach(h => getHookTags(h).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+  const tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+  if (activeNiche !== 'all' && !counts[activeNiche]) activeNiche = 'all';
+  box.innerHTML = `<button class="filter-btn${activeNiche === 'all' ? ' active' : ''}" data-tag="all">All Tags</button>` +
+    tags.map(t => `<button class="filter-btn${activeNiche === t ? ' active' : ''}" data-tag="${esc(t)}">#${esc(t)} <span style="opacity:.6;">${counts[t]}</span></button>`).join('');
+}
+
 function setupHookFilters() {
   const input = document.getElementById('search-input');
   if (input) {
@@ -269,11 +294,11 @@ function setupHookFilters() {
       filterAndRenderHooks();
     });
   }
-  document.querySelectorAll('.filter-btn[data-niche]').forEach(btn => {
+  document.querySelectorAll('.filter-btn[data-tag]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.filter-btn[data-niche]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.filter-btn[data-tag]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeNiche = btn.dataset.niche;
+      activeNiche = btn.dataset.tag;
       filterAndRenderHooks();
     });
   });
@@ -282,11 +307,7 @@ function setupHookFilters() {
 function filterAndRenderHooks() {
   let list = allHooks;
   if (activeNiche !== 'all') {
-    list = list.filter(h => {
-      const tags = Array.isArray(h.tags) ? h.tags.map(t => String(t).toLowerCase()) : (h.tags ? String(h.tags).toLowerCase().split(',').map(t => t.trim()) : []);
-      if (h.niche && h.niche.toLowerCase() === activeNiche.toLowerCase()) return true;
-      return tags.includes(activeNiche.toLowerCase());
-    });
+    list = list.filter(h => getHookTags(h).includes(activeNiche.toLowerCase()));
   }
   if (searchQuery) {
     list = list.filter(h => {
