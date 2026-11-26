@@ -75,31 +75,34 @@
         <form id="hook-form">
           <label class="l">Hook text (US English)</label>
           <input class="search-input" id="f-hook" required maxlength="140" placeholder="Stop scrolling if you want your Reels to blow up">
+          
           <div class="grid2">
-            <div><label class="l">Niche</label>
-              <select class="search-input" id="f-niche">
-                <option>business</option><option>finance</option><option>fitness</option><option>beauty</option><option>food</option><option>lifestyle</option><option>general</option>
-              </select></div>
-            <div><label class="l">Category / vibe</label><input class="search-input" id="f-category" placeholder="Cinematic B-Roll"></div>
-            <div><label class="l">Duration (seconds)</label><input class="search-input" id="f-duration" type="number" min="1" max="30" step="0.1" value="4"></div>
-            <div><label class="l">Views label (optional)</label><input class="search-input" id="f-views" placeholder="2.4M"></div>
+            <div>
+              <label class="l">Tags (comma-separated)</label>
+              <input class="search-input" id="f-tags" placeholder="e.g. business, reels, growth, luxury">
+            </div>
+            <div>
+              <label class="l">Views benchmark (optional: blank = random 2-10M)</label>
+              <input class="search-input" id="f-views" placeholder="e.g. 3.4M (or leave blank)">
+            </div>
           </div>
-          <label class="l">Video file (9:16 MP4/WebM, max 150MB)</label>
-          <input class="search-input" id="f-video" type="file" accept="video/mp4,video/webm,video/quicktime">
-          <label class="l">…or existing video URL (optional)</label>
-          <input class="search-input" id="f-video-url" placeholder="https://…">
+
           <label class="l">Viral Instagram Example URL (Reel / Post)</label>
           <input class="search-input" id="f-instagram" placeholder="https://www.instagram.com/reel/C8.../">
+          
           <label class="l">How to use this hook (one step per line — shown on the hook page)</label>
-          <textarea class="search-input" id="f-howto" rows="4" placeholder="1. Download the 1080p MP4 hook&#10;2. Place it as your first clip in CapCut or Reels&#10;3. Cut straight into your footage right after the hook"></textarea>
-          <label class="l">Best for (short description)</label>
+          <textarea class="search-input" id="f-howto" rows="4" placeholder="1. Hook the viewer in first 2-3 seconds&#10;2. Cut straight into your proof&#10;3. Deliver 3 bullet points"></textarea>
+          
+          <label class="l">Best for (short description / target audience)</label>
           <textarea class="search-input" id="f-desc" rows="2" placeholder="Great for business tips, growth hacks, and educational Reels."></textarea>
+          
           <label class="l">Suggested caption / hashtags</label>
           <textarea class="search-input" id="f-caption" rows="2" placeholder="#reels #growth #smallbusiness"></textarea>
-          <label class="l">Matching AI B-Roll Prompt (Midjourney / Kling / Runway)</label>
+          
+          <label class="l">Matching AI B-Roll Prompt (optional)</label>
           <textarea class="search-input" id="f-aiprompt" rows="2" placeholder="9:16 vertical video, cinematic luxury office, dark aesthetic, 4k realistic --ar 9:16"></textarea>
+          
           <label style="display:flex;gap:8px;align-items:center;font-size:.9rem;margin-top:12px"><input type="checkbox" id="f-published" checked> Published (visible on the website)</label>
-          <div class="bar" id="bar"><i id="bar-i"></i></div>
           <div style="display:flex;gap:10px;margin-top:16px">
             <button class="btn btn-primary" type="submit" id="btn-save">Publish hook</button>
             <button class="btn btn-secondary" type="button" onclick="resetForm()">Clear</button>
@@ -126,6 +129,8 @@
     $('form-title').textContent = 'New hook';
     $('btn-save').textContent = 'Publish hook';
     $('f-published').checked = true;
+    if ($('f-tags')) $('f-tags').value = '';
+    if ($('f-views')) $('f-views').value = '';
     if ($('f-instagram')) $('f-instagram').value = '';
     if ($('f-aiprompt')) $('f-aiprompt').value = '';
     setMsg('');
@@ -139,35 +144,60 @@
     try {
       const db = await Cloud.db();
       const existing = editingId ? (await db.collection('hooks').doc(String(editingId)).get()).data() : null;
-      let videoKey = existing?.videoKey || '';
-      const file = $('f-video').files[0];
-      if (file) {
-        $('bar').style.display = 'block'; setMsg('Uploading video…');
-        videoKey = await Cloud.upload(file, 'hooks', p => $('bar-i').style.width = Math.round(p * 100) + '%');
+
+      let id = editingId;
+      if (!id) {
+        // Auto-increment sequential ID
+        const snap = await db.collection('hooks').get();
+        const ids = snap.docs.map(d => Number(d.id) || 0).filter(n => n > 0);
+        id = ids.length ? Math.max(...ids) + 1 : 1;
       }
-      const videoUrl = $('f-video-url').value.trim() || (videoKey ? Cloud.mediaUrl(videoKey) : existing?.videoSample || '');
-      if (!videoUrl) throw new Error('Add a video file or URL.');
-      const id = editingId || Date.now();
-      const dur = Number($('f-duration').value) || 4;
+
+      // Views: random 2-10M if not provided
+      let viewsVal = ($('f-views').value || '').trim();
+      if (!viewsVal) {
+        viewsVal = (Math.floor(Math.random() * 81 + 20) / 10).toFixed(1) + 'M';
+      }
+
+      // Tags: parsed from comma-separated string
+      const rawTags = ($('f-tags').value || '').trim();
+      const tags = rawTags ? rawTags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean) : ['general'];
+
+      const gradients = [
+        'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #064e3b 0%, #047857 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #7f1d1d 0%, #991b1b 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #312e81 0%, #4338ca 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #831843 0%, #9d174d 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #78350f 0%, #92400e 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #14532d 0%, #166534 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #581c87 0%, #6b21a8 50%, #0b0b14 100%)',
+        'linear-gradient(135deg, #18181b 0%, #27272a 50%, #0b0b14 100%)'
+      ];
+      const bgGradient = existing?.bgGradient || gradients[Math.floor(Math.random() * gradients.length)];
+
       const doc = {
-        id, hook: $('f-hook').value.trim(), niche: $('f-niche').value, category: $('f-category').value.trim() || 'General',
-        duration: dur + 's', resolution: '1080x1920', views: $('f-views').value.trim() || '',
-        bgGradient: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%), #1e1b4b',
-        videoSample: videoUrl, videoKey,
+        id,
+        hook: $('f-hook').value.trim(),
+        tags,
+        resolution: '1080p Full HD',
+        views: viewsVal,
+        bgGradient,
         exampleInstagram: $('f-instagram').value.trim(),
-        howTo: $('f-howto').value.trim(), description: $('f-desc').value.trim(),
+        howTo: $('f-howto').value.trim(),
+        description: $('f-desc').value.trim(),
         suggestedCaption: $('f-caption').value.trim(),
         aiPrompt: $('f-aiprompt') ? $('f-aiprompt').value.trim() : '',
         published: $('f-published').checked,
-        createdAt: existing?.createdAt || Date.now(), updatedAt: Date.now(),
+        createdAt: existing?.createdAt || Date.now(),
+        updatedAt: Date.now(),
         createdBy: existing?.createdBy || firebase.auth().currentUser.email
       };
       await db.collection('hooks').doc(String(id)).set(doc);
       const wasEditing = !!editingId;
-      $('bar').style.display = 'none';
       loadList();
       if (!wasEditing) resetForm();
-      setMsg('Saved! Live on the site now.', 'ok');
+      setMsg('Saved Hook #' + id + '! Live on site now.', 'ok');
     } catch (err) { setMsg(err.message || 'Save failed', 'err'); }
     btn.disabled = false;
   }
@@ -175,15 +205,21 @@
   async function loadList() {
     const db = await Cloud.db();
     const snap = await db.collection('hooks').get();
-    const items = snap.docs.map(d => d.data()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    $('list').innerHTML = items.length ? items.map(h => `
+    const items = snap.docs.map(d => d.data()).sort((a, b) => (b.id || 0) - (a.id || 0));
+    $('list').innerHTML = items.length ? items.map(h => {
+      const tagsText = Array.isArray(h.tags) ? h.tags.map(t => '#' + t).join(' ') : (h.tags || h.niche || '');
+      return `
       <div class="row">
-        <video src="${esc(h.videoSample)}" muted preload="metadata"></video>
-        <div class="grow"><strong>${esc(h.hook)}</strong><div class="muted">${esc(h.niche)} · ${esc(h.duration)} · ${h.published ? 'published' : 'draft'} · by ${esc(h.createdBy || '')}</div></div>
+        <div style="width:48px;height:64px;border-radius:6px;background:${h.bgGradient || '#1e1b4b'};display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:#fff;">#${h.id}</div>
+        <div class="grow">
+          <strong>"${esc(h.hook)}"</strong>
+          <div class="muted">${esc(tagsText)} · ${esc(h.views || '')} · ${h.published ? 'published' : 'draft'}</div>
+        </div>
         <a class="btn btn-secondary btn-sm" href="hook.html?id=${Number(h.id)}" target="_blank">View</a>
         <button class="btn btn-secondary btn-sm" onclick="editHook(${Number(h.id)})">Edit</button>
         <button class="btn btn-secondary btn-sm" onclick="delHook(${Number(h.id)})">Delete</button>
-      </div>`).join('') : 'No cloud hooks yet.';
+      </div>`;
+    }).join('') : 'No cloud hooks yet.';
   }
 
   async function editHook(id) {
@@ -193,9 +229,9 @@
     editingId = id;
     $('form-title').textContent = 'Edit hook #' + id;
     $('btn-save').textContent = 'Save changes';
-    $('f-hook').value = h.hook; $('f-niche').value = h.niche; $('f-category').value = h.category || '';
-    $('f-duration').value = parseFloat(h.duration) || 4; $('f-views').value = h.views || '';
-    $('f-video-url').value = h.videoKey ? '' : h.videoSample;
+    $('f-hook').value = h.hook;
+    $('f-tags').value = Array.isArray(h.tags) ? h.tags.join(', ') : (h.tags || h.niche || '');
+    $('f-views').value = h.views || '';
     $('f-instagram').value = h.exampleInstagram || '';
     $('f-howto').value = h.howTo || '';
     $('f-desc').value = h.description || '';

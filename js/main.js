@@ -182,28 +182,31 @@ function renderHookGrid(id, hooks) {
 
 function createHookCard(hook) {
   const hookId = Number(hook.id) || hook.id;
+  const tagsList = Array.isArray(hook.tags) ? hook.tags : (hook.tags ? String(hook.tags).split(',').map(t => t.trim()) : (hook.niche ? [hook.niche] : []));
+  const tagsHtml = tagsList.slice(0, 3).map(t => `<span class="badge badge-niche" style="font-size:0.7rem;padding:2px 8px;text-transform:lowercase;">#${esc(t)}</span>`).join('');
+  const viewsText = hook.views || '3.5M';
+  const hasVideo = !!hook.videoSample;
+
   return `
     <div class="video-hook-card" data-id="${esc(hookId)}">
-      <div class="video-preview-wrapper" onclick="toggleVideoPlayback(this)">
-        <video src="${esc(hook.videoSample)}" preload="metadata" muted loop playsinline style="background:#0f172a;"></video>
-        <div class="video-overlay-gradient"></div>
-        <div class="video-top-badges">
-          <span class="badge badge-resolution">1080p</span>
-          <span class="badge badge-niche">${esc(hook.duration || '4s')}</span>
+      <div class="video-preview-wrapper" ${hasVideo ? 'onclick="toggleVideoPlayback(this)"' : ''} style="background: ${hook.bgGradient || 'linear-gradient(135deg, #181828, #0B0B14)'}; display:flex; flex-direction:column; justify-content:space-between; padding:18px; position:relative; overflow:hidden;">
+        ${hasVideo ? `<video src="${esc(hook.videoSample)}" preload="metadata" muted loop playsinline style="background:#0f172a; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;"></video><div class="video-overlay-gradient"></div>` : '<div class="video-overlay-gradient" style="opacity:0.35;"></div>'}
+        <div class="video-top-badges" style="position:relative; z-index:2; display:flex; justify-content:space-between; width:100%;">
+          <span class="badge badge-resolution">Full HD</span>
+          <span class="badge badge-views">🔥 ${esc(viewsText)}</span>
         </div>
-        <div class="video-play-btn">▶</div>
-        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none;" onclick="event.stopPropagation();">
-          <div class="caption-text">"${esc(hook.hook)}"</div>
+        ${hasVideo ? '<div class="video-play-btn">▶</div>' : ''}
+        <a href="hook.html?id=${encodeURIComponent(hookId)}" class="video-hook-caption" style="text-decoration:none; position:relative; z-index:2; margin:auto 0;" onclick="event.stopPropagation();">
+          <div class="caption-text" style="font-size:1.1rem; line-height:1.35; font-weight:800;">"${esc(hook.hook)}"</div>
         </a>
       </div>
       <div class="video-card-body">
-        <div class="video-meta-tags" style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-          <span class="badge badge-niche">${esc(hook.niche)}</span>
+        <div class="video-meta-tags" style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:6px; flex-wrap:wrap;">
+          <div style="display:flex; gap:4px; flex-wrap:wrap;">${tagsHtml}</div>
           <a href="hook.html?id=${encodeURIComponent(hookId)}" style="font-size:0.75rem; color:var(--accent-cyan); text-decoration:none; font-weight:700;">View Guide →</a>
         </div>
         <div class="video-card-actions">
-          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none;">ℹ️ How to Use</a>
-          <button class="btn btn-download btn-sm" onclick="downloadHook(${JSON.stringify(hookId)})">⬇ Download</button>
+          <a href="hook.html?id=${encodeURIComponent(hookId)}" class="btn btn-secondary btn-sm" style="justify-content:center; text-decoration:none; width:100%;">ℹ️ How to Use &amp; Reel</a>
         </div>
       </div>
     </div>`;
@@ -277,9 +280,18 @@ function setupHookFilters() {
 
 function filterAndRenderHooks() {
   let list = allHooks;
-  if (activeNiche !== 'all') list = list.filter(h => h.niche === activeNiche);
+  if (activeNiche !== 'all') {
+    list = list.filter(h => {
+      const tags = Array.isArray(h.tags) ? h.tags.map(t => String(t).toLowerCase()) : (h.tags ? String(h.tags).toLowerCase().split(',').map(t => t.trim()) : []);
+      if (h.niche && h.niche.toLowerCase() === activeNiche.toLowerCase()) return true;
+      return tags.includes(activeNiche.toLowerCase());
+    });
+  }
   if (searchQuery) {
-    list = list.filter(h => [h.hook, h.niche, h.category].some(v => String(v || '').toLowerCase().includes(searchQuery)));
+    list = list.filter(h => {
+      const tags = Array.isArray(h.tags) ? h.tags.join(' ') : String(h.tags || '');
+      return [h.hook, tags, h.niche, h.description, h.howTo].some(v => String(v || '').toLowerCase().includes(searchQuery));
+    });
   }
   const countEl = document.getElementById('hooks-count');
   if (countEl) countEl.innerHTML = `Showing <span>${list.length}</span> free hooks`;
